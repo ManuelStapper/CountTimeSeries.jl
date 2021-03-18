@@ -105,7 +105,7 @@ function show(x::INGARCHresults)
     stars = string.(p1, p2, p3)
 
     r = length(x.model.external)
-    nb = model.distr == "NegativeBinomial"
+    nb = x.model.distr == "NegativeBinomial"
     if typeof(x.model) == INGARCHModel
         name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
     elseif typeof(x.model) == INARCHModel
@@ -135,8 +135,8 @@ function show(x::INARMAresults)
     stars = string.(p1, p2, p3)
 
     r = length(x.model.external)
-    nb1 = model.distr[1] == "NegativeBinomial"
-    nb2 = model.distr[2] == "NegativeBinomial"
+    nb1 = x.model.distr[1] == "NegativeBinomial"
+    nb2 = x.model.distr[2] == "NegativeBinomial"
 
     if typeof(x.model) == INARMAModel
         name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]

@@ -118,8 +118,9 @@ function predict(results::INGARCHresults,
         ν = λ
     end
 
+    X = results.model.X
     if rE > 0
-        ν = ν .- (η[iE]'X[iE, :])[1, :]
+        ν[1:T] = ν[1:T] .- (η[iE]'X[iE, :])[1, :]
     end
 
     Y = zeros(T + h)
@@ -269,6 +270,7 @@ function predict(results::INGARCHresults,
         νOld = λOld
     end
 
+    X = results.model.X
     if rE > 0
         νOld = νOld .- (η[iE]'X[iE, :])[1, :]
     end

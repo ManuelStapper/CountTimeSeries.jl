@@ -465,7 +465,7 @@ function Pmat(λ::Vector{Float64},
         PRtemp = zeros(T)
         for t = 1:T
             PRtemp = pdf.(NegativeBinomial(ϕ[1], ϕ[1]/(ϕ[1] + λ[t])), 0:ymax)
-            PR[2:ymax + 1, t] = PRtemp[2:ymax + 1, t].*(1 .- ω./(1 .- PRtemp[1, t]))
+            PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω./(1 .- PRtemp[1]))
             PR[1, t] = PRtemp[1] + ω
         end
     end
@@ -474,7 +474,7 @@ function Pmat(λ::Vector{Float64},
         PRtemp = zeros(T)
         for t = 1:T
             PRtemp = pdf.(Poisson(λ[t]), 0:ymax)
-            PR[2:ymax + 1, t] = PRtemp[2:ymax + 1, t].*(1 .- ω./(1 .- PRtemp[1, t]))
+            PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω./(1 .- PRtemp[1]))
             PR[1, t] = PRtemp[1] + ω
         end
     end

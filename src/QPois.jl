@@ -14,6 +14,8 @@ QPois(results)
 The function uses estimation results of an INGARCH fit with Poisson distribution
 and estimates the overdispersion parameter according to
 [Christou and Fokianos (2013)](https://doi.org/10.1111/jtsa.12050).
+The function puts out a changed version of the input including an estimate of
+the overdispersion parameter. The distribution is thereby changed to "NegativeBinomial".
 """
 function QPois(results::INGARCHresults)
     if results.model.distr != "Poisson"
@@ -25,8 +27,18 @@ function QPois(results::INGARCHresults)
         T = length(y)
 
         λ = results.λ
-        po = results.model.pastObs
-        pm = results.model.pastMean
+        if typeof(results.model) != IIDModel
+            po = results.model.pastObs
+        else
+            po = Array{Int64, 1}([])
+        end
+
+        if typeof(results.model) == INGARCHModel
+            pm = results.model.pastMean
+        else
+            pm = Array{Int64, 1}([])
+        end
+
         if length(po) == 0
             P = 0
             p = 0
@@ -59,5 +71,10 @@ function QPois(results::INGARCHresults)
         ϕest = exp(find_zero(x -> rootFun(x, results), 10))
     end
 
-    ϕest
+    # Rewrite results
+    results.pars.ϕ = [ϕest]
+    results.model.distr = "NegativeBinomial"
+    results.θ = par2θ(results.pars, results.model)
+
+    return results
 end

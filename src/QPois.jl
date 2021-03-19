@@ -72,9 +72,13 @@ function QPois(results::INGARCHresults)
     end
 
     # Rewrite results
-    results.pars.ϕ = [ϕest]
-    results.model.distr = "NegativeBinomial"
-    results.θ = par2θ(results.pars, results.model)
+    out = INGARCHresults(results.y, results.θ, results.pars, results.λ, results.residuals,
+                         results.LL, results.LLs, results.nPar, results.nObs, results.se,
+                         results.CI, results.model, results.converged, results.MLEControl)
 
-    return results
+    out.pars.ϕ = [ϕest]
+    out.model.distr = "NegativeBinomial"
+    out.θ = par2θ(out.pars, out.model)
+
+    return out
 end

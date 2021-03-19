@@ -32,7 +32,7 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     nb = model.distr == "NegativeBinomial"
 
     nPar = 1 + p + q + r + nb + model.zi
-
+    
     if (length(init) != nPar) & (length(init) > 0)
         println("Number of initial values does not match number of parameters.")
         println("Switched to default initial values.")

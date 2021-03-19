@@ -120,7 +120,9 @@ function predict(results::INGARCHresults,
 
     X = results.model.X
     if rE > 0
-        ν[1:T] = ν[1:T] .- (η[iE]'X[iE, :])[1, :]
+        for i = iE
+            ν[1:T] = ν[1:T] .- η[i].*X[i, :]
+        end
     end
 
     Y = zeros(T + h)
@@ -272,7 +274,9 @@ function predict(results::INGARCHresults,
 
     X = results.model.X
     if rE > 0
-        νOld = νOld .- (η[iE]'X[iE, :])[1, :]
+        for i = iE
+            νOld = νOld .- η[i].*X[i, :]
+        end
     end
 
     for i = 1:nChain
@@ -428,7 +432,7 @@ function predict(results::INARMAresults,
     if nb2
         ϕ2 = pars.ϕ[2]
     end
-    η = pars.η
+    η = Vector{Float64}(pars.η)
     ω = pars.ω
 
     Y = fill(0, (nChain, M + h))
@@ -441,11 +445,15 @@ function predict(results::INARMAresults,
     # Initialization
     for i = 1:M
         if rE > 0
-            μ[i] += (η[iE]'*results.model.X[iE, T - M + i])[1, :]
+            for i = iE
+                μ[i] += (η[i]*results.model.X[i, T - M + i])
+            end
         end
 
         if rI > 0
-            λ[i] += (η[iI]'*results.model.X[iI, T - M + i])[1, :]
+            for i = iI
+                λ[i] += η[i]*results.model.X[i, T - M + i]
+            end
         end
 
         if nb1
@@ -476,11 +484,15 @@ function predict(results::INARMAresults,
 
     for t = (M+1):(M+h)
         if rE > 0
-            μ[t] += (η[iE]'*Xnew[iE, t - M])[1, :]
+            for i = iE
+                μ[t] += η[i]*Xnew[i, t - M]
+            end
         end
 
         if rI > 0
-            λ[t] += (η[iI]'*Xnew[iI, t - M])[1, :]
+            for i = iI
+                λ[t] += η[i]*Xnew[i, t - M]
+            end
         end
 
         if nb1

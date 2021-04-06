@@ -6,7 +6,7 @@ environment:
 platform:
   - x64
 cache:
-  - '%USERPROFILE%\\.julia\\artifacts'
+  - '%USERPROFILE%\.julia\artifacts'
 matrix:
   allow_failures:
     - julia_version: nightly
@@ -23,10 +23,10 @@ install:
   - ps: iex ((new-object net.webclient).DownloadString("https://raw.githubusercontent.com/JuliaCI/Appveyor.jl/version-1/bin/install.ps1"))
 build_script:
   - echo "%JL_BUILD_SCRIPT%"
-  - C:\\julia\\bin\\julia -e "%JL_BUILD_SCRIPT%"
+  - C:\julia\bin\julia -e "%JL_BUILD_SCRIPT%"
 test_script:
   - echo "%JL_TEST_SCRIPT%"
-  - C:\\julia\\bin\\julia -e "%JL_TEST_SCRIPT%"
+  - C:\julia\bin\julia -e "%JL_TEST_SCRIPT%"
 on_success:
   - echo "%JL_CODECOV_SCRIPT%"
-  - C:\\julia\\bin\\julia -e "%JL_CODECOV_SCRIPT%"
+  - C:\julia\bin\julia -e "%JL_CODECOV_SCRIPT%"

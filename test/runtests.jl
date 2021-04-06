@@ -45,9 +45,8 @@ using Test
     HQIC.(res)
     Xnew = reshape(collect(101:110) .+ 0.0, (1, 10))
 
-    for i = 1:6
+    for i = 2:6
         predict(res[i], 10, 100, Xnew)
     end
-    predict(res[1], 10, Xnew)
-    pit(res[1])
+    pit(res[2])
 end

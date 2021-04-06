@@ -3,6 +3,8 @@ module CountTimeSeries
 using Optim, Distributions, LinearAlgebra, Plots, Calculus, Roots, Random
 using Test, StatsBase, Distributed
 
+cd("C:\\Users\\stapperm\\.julia\\dev\\CountTimeSeries\\src")
+
 include("ModelTypes.jl")
 include("parameter.jl")
 include("MLEControl.jl")

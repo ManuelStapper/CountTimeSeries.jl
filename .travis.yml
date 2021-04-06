@@ -15,19 +15,28 @@ cache:
   directories:
     - ~/.julia/artifacts
 jobs:
-  fast_finish: false
+  fast_finish: true
   allow_failures:
     - julia: nightly
-after_success:
-  - |
-    julia -e '
-      using Pkg
-      Pkg.add("Coverage")
-      using Coverage
-      Codecov.submit(process_folder())'
-  - |
-    julia -e '
-      using Pkg
-      Pkg.add("Coverage")
-      using Coverage
-      Coveralls.submit(process_folder())'
+after_script:
+  - bash ./docs/travis.sh
+codecov: true
+
+
+# uncomment the following lines to override the default test script
+script:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - travis_wait 20 julia --project -e 'using Pkg; Pkg.build(); Pkg.test(; coverage=true)';
+# after_success:
+#   - |
+#     julia -e '
+#       using Pkg
+#       Pkg.add("Coverage")
+#       using Coverage
+#       Codecov.submit(process_folder())'
+#   - |
+#     julia -e '
+#       using Pkg
+#       Pkg.add("Coverage")
+#       using Coverage
+#       Coveralls.submit(process_folder())'

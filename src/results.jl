@@ -15,7 +15,10 @@
 # converged:    Success of optimization routine
 
 """
-    Rspec(y, θ, pars, λ, residuals,
+    INGARCHResults(y, θ, pars, λ, residuals,
+          LL, LLs, nPar, nObs, se, CI,
+          model, converged, MLEControl)
+    INARMAResults(y, θ, pars,
           LL, LLs, nPar, nObs, se, CI,
           model, converged, MLEControl)
 Structure for estimation results.

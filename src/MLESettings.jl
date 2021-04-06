@@ -32,7 +32,7 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     nb = model.distr == "NegativeBinomial"
 
     nPar = 1 + p + q + r + nb + model.zi
-    
+
     if (length(init) != nPar) & (length(init) > 0)
         println("Number of initial values does not match number of parameters.")
         println("Switched to default initial values.")
@@ -159,6 +159,15 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     q = length(model.pastMean)
     r = length(model.external)
     nϕ = sum(model.distr .== "NegativeBinomial")
+    if nϕ == 2
+        if r == 0
+            nϕ -= 1
+        else
+            if sum(.!model.external) > 0
+                nϕ -= 1
+            end
+        end
+    end
 
     nPar = 1 + p + q + r + nϕ + model.zi
 
@@ -205,6 +214,15 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     p = length(model.pastObs)
     r = length(model.external)
     nϕ = sum(model.distr .== "NegativeBinomial")
+    if nϕ == 2
+        if r == 0
+            nϕ -= 1
+        else
+            if sum(.!model.external) > 0
+                nϕ -= 1
+            end
+        end
+    end
 
     nPar = 1 + p + r + nϕ + model.zi
 
@@ -250,6 +268,16 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     q = length(model.pastMean)
     r = length(model.external)
     nϕ = sum(model.distr .== "NegativeBinomial")
+    if nϕ == 2
+        if r == 0
+            nϕ -= 1
+        else
+            if sum(.!model.external) > 0
+                nϕ -= 1
+            end
+        end
+    end
+
 
     nPar = 1 + q + r + nϕ + model.zi
 

@@ -158,6 +158,13 @@ function fit(y::Array{T, 1} where T<:Integer,
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    if r == 0
+        nb2 = false
+    else
+        if sum(model.external) == 0
+            nb2 = false
+        end
+    end
 
     zi = model.zi
 

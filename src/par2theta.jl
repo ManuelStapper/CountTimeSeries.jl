@@ -17,6 +17,15 @@ pars = θ2par([10, 0.5], model)
 function par2θ(θ::parameter, model::T where T<:CountModel)
     if model <: INARMA
         nϕ = sum(model.distr .== "NegativeBinomial")
+        if nϕ == 2
+            if length(model.external) == 0
+                nϕ -= 1
+            else
+                if sum(model.external) > 0
+                    nϕ -= 1
+                end
+            end
+        end
     end
 
     if model <: INGARCH
@@ -49,5 +58,15 @@ end
 
 function par2θ(θ::parameter, model::T where T<:INARMA)
     nϕ = sum(model.distr .== "NegativeBinomial")
+    nϕ = sum(model.distr .== "NegativeBinomial")
+    if nϕ == 2
+        if length(model.external) == 0
+            nϕ -= 1
+        else
+            if sum(.!model.external) == 0
+                nϕ -= 1
+            end
+        end
+    end
     [θ.β0; θ.α; θ.β; θ.η; θ.ϕ[1:nϕ]; ifelse(model.zi, θ.ω, Array{Float64, 1}([]))]
 end

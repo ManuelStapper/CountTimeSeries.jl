@@ -22,6 +22,10 @@ function simulate(T::U where U<:Integer, model::T where T<:INGARCH, θ::paramete
     burnin::U where U<:Integer = 500 ,
     pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0) )
 
+    if !parametercheck(θ, model)
+        error("Parameters not valid.")
+    end
+
     y = fill(0, T + burnin)
     X = model.X
 
@@ -170,6 +174,10 @@ function simulate(T::U where U<:Integer, model::INARCHModel, θ::parameter;
     burnin::U where U<:Integer = 500 ,
     pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0) )
 
+    if !parametercheck(θ, model)
+        error("Parameters not valid.")
+    end
+
     y = fill(0, T + burnin)
     X = model.X
 
@@ -285,6 +293,10 @@ function simulate(T::U where U<:Integer, model::IIDModel, θ::parameter;
     burnin::U where U<:Integer = 500 ,
     pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
 
+    if !parametercheck(θ, model)
+        error("Parameters not valid.")
+    end
+
     y = fill(0, T + burnin)
     X = model.X
     r = length(model.external)
@@ -330,6 +342,10 @@ end
 function simulate(T::U where U<:Integer, model::T where T<:INARMA, θ::parameter;
     burnin::U where U<:Integer = 500 ,
     pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
+
+    if !parametercheck(θ, model)
+        error("Parameters not valid.")
+    end
 
     Y = fill(0, T + burnin)
     X = model.X
@@ -456,6 +472,10 @@ function simulate(T::U where U<:Integer, model::INARModel, θ::parameter;
     burnin::U where U<:Integer = 500 ,
     pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
 
+    if !parametercheck(θ, model)
+        error("Parameters not valid.")
+    end
+
     Y = fill(0, T + burnin)
     X = model.X
 
@@ -569,6 +589,10 @@ end
 function simulate(T::U where U<:Integer, model::INMAModel, θ::parameter;
     burnin::U where U<:Integer = 500 ,
     pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
+
+    if !parametercheck(θ, model)
+        error("Parameters not valid.")
+    end
 
     Y = fill(0, T + burnin)
     X = model.X
@@ -685,6 +709,10 @@ function simulate(T::U where U<:Integer, model::T where T<:CountModel, θ::param
     burnin::U where U<:Integer = 500 ,
     pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
 
+    if !parametercheck(θ, model)
+        error("Parameters not valid.")
+    end
+
     if model.model == "INGARCH"
         newModel = convert(INGARCHModel, model)
     elseif model.model == "INARMA"
@@ -697,6 +725,10 @@ end
 function simulate(T::U where U<:Integer, model::T where T<:CountModel, θ::Array{U, 1} where U<:AbstractFloat;
     burnin::U where U<:Integer = 500,
     pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
+
+    if !parametercheck(θ, model)
+        error("Parameters not valid.")
+    end
 
     simulate(T, model, θ2par(θ, model), burnin = burnin, pinfirst = pinfirst)
 end

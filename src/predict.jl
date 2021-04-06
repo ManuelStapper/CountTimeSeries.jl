@@ -113,7 +113,7 @@ function predict(results::INGARCHresults,
     λ[1:T] = results.λ
 
     if logl
-        ν = log.(ν)
+        ν = log.(λ)
     else
         ν = λ
     end
@@ -267,7 +267,7 @@ function predict(results::INGARCHresults,
     λOld = results.λ
 
     if logl
-        νOld = log.(ν)
+        νOld = log.(λOld)
     else
         νOld = λOld
     end

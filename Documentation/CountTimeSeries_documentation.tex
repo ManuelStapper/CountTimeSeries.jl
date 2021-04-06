@@ -1,0 +1,692 @@
+\documentclass[3p,12pt,authoryear]{article}
+
+\makeatletter
+\def\ps@pprintTitle{%
+	\let\@oddhead\@empty
+	\let\@evenhead\@empty
+	\def\@oddfoot{}%
+	\let\@evenfoot\@oddfoot}
+\makeatother
+
+\usepackage{hyperref}
+\usepackage[germanb, american]{babel}
+\usepackage{epsfig}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{natbib}
+%\usepackage{bbm}
+\usepackage[latin1]{inputenc}
+\usepackage{alphabeta}
+%\usepackage[]{ntheorem}
+\usepackage{hyperref}
+\usepackage{color,soul}
+\usepackage{booktabs} 
+\usepackage{blindtext}
+\usepackage{dsfont}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{positioning}
+\usepackage{caption}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{xcolor}
+
+\usepackage{dcolumn}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+
+%\usepackage[style=verbose]{biblatex}
+% Definiere das Aussehen der Theoreme
+% \theoremstyle{changebrackets}   % Nummerierung vorne und in Klammern
+% \theoremnumbering{arabic}       % arabische Nummerierung
+% \theoremseparator{:}            % Doppelpunkt nach Theorem
+% \newtheorem{satz}{Satz}[section]
+% \newtheorem{definition}[satz]{Definition}
+% \newtheorem{lemma}[satz]{Lemma}
+% \newtheorem{hilfsbehauptung}[satz]{Hilfsbehauptung}
+% \newtheorem{hilfssatz}[satz]{Hilfssatz}
+% \newtheorem{korollar}[satz]{Korollar}
+% \newtheorem{folgerung}[satz]{Folgerung}
+% \renewcommand{\labelenumi}{(\alph{enumi})}
+
+\newcommand*{\kim}[2]{\footnote{\cite{#1} S. #2}}
+
+\setlength{\textwidth}{15.5cm} \setlength{\textheight}{22cm}
+\setlength{\oddsidemargin}{0cm} \setlength{\topmargin}{-0.5cm}
+\setlength{\headheight}{1ex} \setlength{\headsep}{0.7cm}
+\newcommand{\argmin}{\mbox{argmin}}
+\newcommand{\Cov}{\mbox{Cov}}
+\newcommand{\diag}{\mbox{diag}}
+\newcommand{\Var}{\mbox{Var}}
+\newcommand{\E}{\mbox{E}}
+\newcommand{\PP}{\mbox{P}}
+\newcommand{\MSE}{\mbox{MSFE}}
+\newcommand{\GARCH}{\mbox{GARCH}}
+\newcommand{\AR}{\mbox{AR}}
+\newcommand{\ARFIMA}{\mbox{ARFIMA}}
+\DeclareMathOperator*{\argmax}{arg\,min}
+\catcode`\"=\active \let"=\" \let\3=\ss
+
+\newcommand*{\quo}{\texttt{\char`\"}}
+
+\newcommand{\qed}{\hfill \small$\blacksquare$\normalsize}
+
+\clubpenalty10000
+\widowpenalty10000
+\displaywidowpenalty=10000
+
+\definecolor{pantone315}{RGB}{0,105,131}
+\definecolor{pantone312}{RGB}{0,173,208}
+\definecolor{pantone3282}{RGB}{0,140,130}
+\definecolor{pantoneBlack}{RGB}{62,62,59}
+
+
+
+\tikzset{
+	treenode/.style = {shape=rectangle, rounded corners,
+		draw, align=center,
+		top color=white, bottom color=pantone315!50},
+	root/.style     = {treenode, font=\normalsize\bfseries\boldmath, bottom color=pantone315!50},
+	env/.style      = {treenode, font=\normalsize\bfseries\boldmath},
+	dummy/.style    = {circle,draw}
+}
+\tikzstyle{line} = [draw, -latex']
+
+\setcounter{MaxMatrixCols}{30}
+
+\usepackage{listings}
+\lstset{
+	basicstyle = \ttfamily\small,
+	mathescape
+}
+
+
+\begin{document}
+\begin{center}
+\LARGE
+\textbf{CountTimeSeries.jl Documentation - Modelling Univariate Count Data Time Series in Julia}\\
+\normalsize
+\vspace{1cm}
+\textbf{Manuel Stapper}\\
+Westfälische Wilhelms-Universität Münster,\\
+Department of Economics (CQE), Germany\vspace{0.5cm}\\
+Version: April, 6th 2021\vspace{0.5cm}\\
+\end{center}
+\textbf{Abstract}: A Julia package is developed to deal with univariate count data time series. For a general class of integer ARMA and GARCH type models, the package allows for simulation, likelihood based estimation and inference. Nested are also regressions with integer response variable. Information criteria and the non-randomized PIT histogram may be used to assess the model choice. Further, $h$-step ahead predictions can be carried out including prediction intervals from a parametric bootstrap.
+
+The package is currently available in the GitHub repository \url{https://github.com/ManuelStapper/CountTimeSeries.jl}.
+\vspace{0.3cm}\\
+\textbf{Keywords}: Julia, Count Data, Time Series Analysis, Count Regression
+
+\section{Introduction}
+
+The Julia package presented in the following was developed for the analysis of count time series. It covers a broad class of integer valued GARCH and ARMA like models. Time series following these models can be generated and parameters are estimated using numerical maximization of the likelihood. Confidence intervals are computed via standard maximum likelihood procedures. Information criteria and the non-randomized PIT histogram provide model diagnostic devices.
+Forecasts can then be used including simulation based forecast intervals.
+
+The structure of the CountTimeSeries package is kept modular to allow for easy extension of alternative estimation methods of model frameworks. In the following, the INGARCH and INARMA framework is introduced first together with the notation used throughout this paper and in the package. Then, the functions contained in the package are introduced. Their in- and outputs are summarized and details are provided. This manual concludes with an outlook of possible future extensions.
+
+
+
+\section{Framework}
+
+The two model frameworks incorporated in the CountTimeSeries package shall first be presented from a theoretical point of view in the following section.
+
+\subsection{INGARCH($p$, $q$)}
+\label{subs_INGARCH}
+
+Developed by \citet{ferland_2006}, the INGARCH framework builds a cornerstone in modeling count data time series. Starting with their basic framework, different generalizations have been developed thereafter. Some important extensions are included in the CountTimeSeries package. Models without regressors can be formalized as
+\begin{align}
+\label{ingarch_model}
+	Y_t|\mathcal{F}_{t-1}&\sim \begin{cases} \mathcal{D}(\lambda_t, \theta) & \text{ with probability }(1 - \omega)\\\delta_{0}&\text{ with probability }\omega\end{cases}\\
+	f^{-1}(\lambda_t) &= \beta_0 + \sum_{i = 1}^p{\alpha_iY_{t-i}} + \sum_{i = 1}^q{\beta_i\lambda_{t-i}}\notag\text{ ,}
+\end{align}where $Y_t$ is observable process, $\mathcal{F}_t$ the information set at time $t$ and $\mathcal{D}(\lambda_t, \theta)$ a distribution with support $\mathbb{N}_0$, mean parameter $\lambda_t$ and possibly further parametrized by $\theta$. Possible candidates for $\mathcal{D}$ are Poisson and Negative Binomial distribution. Zero inflation is incorporated whenever $\omega > 0$. Then $Y_t|\mathcal{F}_{t-1}$ follows a Dirac distribution with probability $\omega$ and distributed according to $\mathcal{D}(\lambda_t, \theta)$ with probability $1-\omega$. The link function $f$ is restricted to either the identity function or the exponential function during the following.
+
+In many applications, the observed count process is influenced by regressors and not purely self driven. To include regressors in above models, the second row in (\ref{ingarch_model}) is altered to
+\begin{align*}
+	\lambda_t &= \nu_t + \sum_{i = 1}^{r_E} \eta_iX_{i, t}\\
+	\nu_t &= \beta_0 + \sum_{i = 1}^p{\alpha_iY_{t-i}} + \sum_{i = 1}^q{\beta_i\nu_{t-i}} + \sum_{i = r_E + 1}^{r}\eta_iX_{i, t}
+\end{align*}for an identity link and
+\begin{align*}
+\log(\lambda_t) &= \nu_t + \sum_{i = 1}^{r_E} \eta_iX_{i, t}\\
+\nu_t &= \beta_0 + \sum_{i = 1}^p{\alpha_i\log(Y_{t-i} + 1)} + \sum_{i = 1}^q{\beta_i\nu_{t-i}} + \sum_{i = r_E + 1}^{r}\eta_iX_{i, t}
+\end{align*}for a log-linear link. Thereby, $r$ denotes the number of regressors, where the first $r_E$ regressors enter the system externally and the remaining $r_I$ regressors enter it internally, affecting not only $\lambda_t$ but also $\nu_t$.
+A Poisson or NB regression is nested in this framework and can be specified setting $p = q = 0$.
+
+Given a vector of parameters $\theta$, the likelihood is easily computed as
+\begin{align*}
+L(\theta) &= \prod_{t = M + 1}^T{P(Y_t = y_t|\mathcal{F}_{t-1})}\\
+&= \prod_{t = M + 1}^T{P_{\mathcal{D}}(Y_t = y_t|\mathcal{F}_{t-1})(1 - \omega) + \mathds{1}\{y_t = 0\}}\omega\text{ .}
+\end{align*}
+
+\subsection{INARMA($p$, $q$)}
+\label{subs_INARMA}
+
+Besides the INGARCH framework, count data time series are often modelled in an ARMA like structure. Different approaches have been developed starting with \citet{McKenzie1985} and \citet{Alzaid1988}. In the scope of this package, we focus on the thinning based INARMA framework discussed by \citet{weiss_2019b}, who introduced an efficient Maximum Likelihood based estimation. This approach is generalized to a framework similar to the one presented in the previous subsection, .
+An INARMA($p$, $q$) model with possible zero inflation and deterministic regressors can be formalized as
+\begin{align}
+\label{inarma_model}
+Y_t &= R_t + \sum_{i = 1}^q{\beta_i\circ R_{t-i}} + \sum_{i = 1}^p{\alpha_i\circ Y_{t-i}} + Z_t\notag\\
+R_t&\sim \begin{cases}\mathcal{D}_1(\lambda_t, \theta)&\text{ with probability }(1 - \omega)\\ \delta_0&\text{ with probability }\omega\end{cases}\notag\\
+f_1^{-1}(\lambda_t) &= \beta_0 + \sum_{i = 1}^{r_I}{\eta_i X_{i, t}}\\
+Z_t &\sim \mathcal{D}_2(\mu_t, \theta)\notag\\
+f_2^{-1}(\mu_t) &= \sum_{i = r_I + 1}^r{\eta_iX_{i, t}}\notag
+\end{align}
+The thinning operator $\circ$ is defined for $p\in[0, 1]$ and $X\in\mathbb{N}_0$ as $p\circ X = \sum_{i = 1}^X{B_i}$, where $B_i\overset{\text{iid}}{\sim}\text{Bin}(1, p)$ for strictly positive $X$ and zero if $X=0$. Thinning operators in above framework are assumed mutually independent. Both distributions $\mathcal{D}_1$ and $\mathcal{D}_2$ have support $\mathbb{N}_0$, means $\lambda_t$ and $\mu_t$ respectively and might be further parametrized by $\theta$. Possible distributions are limited to Poisson and Negative Binomial. Both link functions $f_1$ and $f_2$ are either the identity or the exponential function. 
+Zero inflation can be incorporated in the distribution of $R_t$ and translates to an inflation of zeros in $Y_t$. Regressors can either enter the system externally by affecting the mean of $Z_t$ or enter it internally affecting the mean of $R_t$. 
+
+The likelihood is not easily computed for the INARMA framework, since the process $\{R_t\}$ is unobservable. Every possible path of $\{R_t\}$ is considered during the evaluation of the likelihood. The computation time increases drastically with a higher MA order $q$. From the first line of (\ref{inarma_model}) it is obvious that $R_t\le Y_t$. Therefore, the possible values of $R_t$ given $Y_t = y_t$ are limited. This property can be exploited when computing the likelihood.
+
+For a general $q$, the likelihood can be computed using
+
+\begin{align*}
+b_t(r_t, r_{t-1}, ..., r_{t-q}) &:= \PP(R_t=r_t, ..., R_{t-q}=r_{t-q}; Y_{t} = y_t, ..., Y_{M+1}=y_{M+1}|Y_M = y_M, ..., Y_1 = y_1)\text{ ,}
+\end{align*}where $M:= \max\{p, q\}$, which gives 
+\[
+	L(\theta) = \sum_{r_{T-q} = 0}^{y_{T-q}}...\sum_{r_T = 0}^{y_T} b_T(r_T, ..., r_{T - q})\text{ .}
+\]The arrays $b_t(r_t, ..., r_{t-q})$ are initialized by
+\begin{align*}
+	b_{M+1}(r_{M+1}, ..., r_{M-q+1}) =& \PP(R_{M+1}=r_{M+1})\prod_{i = M-q+1}^{M}\PP(R_i = r_i|R_i \le y_i)\cdot\\
+	&\PP\left(\sum_{i = 1}^p{\alpha_i\circ y_{M+1-i}} + \sum_{i = 1}^q{\beta_i\circ r_{M+1-i}} + Z_{M+1} = y_{M+1} - r_{M+1}\right)\text{ .}
+\end{align*}Then for $t = M+2, ..., T$ the following recursion holds
+\begin{align*}
+b_{t}(r_t, ..., r_{t-q}) =& \PP(R_t = r_t) \left(\sum_{r_{t-q-1} = 0}^{y_{t-q-1}} b_{t-1}(r_{t-1},...,r_{t-q-1})\right)\cdot\\
+&\PP\left(\sum_{i = 1}^p\alpha_i\circ y_{t-i} + \sum_{i = 1}^q \beta_i\circ r_{t-i} + Z_{t} = y_t - r_t\right)\text{ .}
+\end{align*}
+
+\citet{weiss_2019b} describe an efficient likelihood evaluation technique for $q = 1$, which translates above computation to a matrix product recursion. The idea is extended to $q = 2$, likelihood evaluation of models with higher order are computationally demanding and not feasible for practical purposes, see \citet{dungey_2019}.
+
+
+\section{Functions and Structures}
+
+The following section describes functions and structures included in the CountTimeSeries package. Functions are summarized in a table, in- and output are presented together with the data type accepted and a short description. Structures are self defined data types. They can be used to standardize in- or output of functions. They are described here by a table with entries of the structure, their data type and a short description.
+
+Further it should be noted that different packages are used inside the CountTimeSeries package, i.e. Optim, Distributions, LinearAlgebra, Random, Plots, Calculus and Roots.
+
+
+\subsection{Model Specification and Parameters}
+
+As a first step, different types of count data models are defined. The type \texttt{CountModel} defines the broad class containing all models described in Sections \ref{subs_INGARCH} and \ref{subs_INARMA}. Subtypes of this class are defined for the two frameworks, called \texttt{INGARCH} and \texttt{INARMA}. These three types are defined as abstract types, actual structs give information about model specifications and are defined as subtypes of \texttt{INGARCH} and \texttt{INARMA}. Namely, there are three subtypes of \texttt{INGARCH}, \texttt{INGARCHModel}, \texttt{INARCHModel} and \texttt{IIDModel}. The former contains the following specifications
+
+\begin{table}[H]
+	\centering
+	\caption{\texttt{INGARCHModel} - Model Specification}
+	\label{tab_INGARCHModel}
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Variable&Type&Description\\
+		\midrule
+		\texttt{distr}&\texttt{String}&Conditional distribution\\
+		\texttt{link}& \texttt{String}&Link function \\
+		\texttt{pastObs}& \texttt{Array\{Integer, 1\}}& Past observations included\\
+		\texttt{pastMean}&\texttt{Array\{Integer, 1\}} & Past means included \\
+		\texttt{X}&\texttt{Array\{Abstract Float, 2\}}&Regressor matrix\\
+		\texttt{external}&\texttt{Array\{Bool, 1\}}&Are regressors external?\\
+		\texttt{zi}&\texttt{Bool}&Zero inflation\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+The distribution \texttt{distr} can either be \texttt{\quo Poisson\quo} or \texttt{\quo NegativeBinomial\quo}. The link function \texttt{link} can either be \texttt{\quo Linear\quo} or \texttt{\quo Log\quo}. The entries \texttt{pastObs} and \texttt{pastMean} specify which lags are included in the definition of the conditional mean. Thereby it is possible to include no lags (\texttt{[]}) or non-consecutive lags (\texttt{[1, 12, 24]}). In case of regressors, the vector \texttt{external} must clarify which of those enter the system externally, having the same length as there are regressors. The regressor matrix \texttt{X} shall include the regressors row-wise. Finally, the boolean variable \texttt{zi} indicates if zero inflation is incorporated.
+
+In case of no recursion in the conditional mean ($q = 0$), an INGARCH model reduces to an INARCH model. A specification object for INARCH($p$) models is defined as \texttt{INARCHModel}, which includes all entries as in \ref{tab_INGARCHModel} besides \texttt{pastMean}. Further a model with no serial correlation is defined as \texttt{IIDModel}, with no entries \texttt{pastObs} and \texttt{pastMean}. Although this class is called IIDModel, observations might not be identically distributed in case of regressors.
+
+In the same fashion as for INGARCH models, different thinning based models can be specified by \texttt{INARMAModel}, \texttt{INARModel} and \texttt{INMAModel}. The former contains the following entries:
+
+\begin{table}[H]
+	\centering
+	\caption{\texttt{INARMAModel} - Model Specification}
+	\label{tab_INARMAModel}
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Variable&Type&Description\\
+		\midrule
+		\texttt{distr}&\texttt{Array\{String, 1\}}&Conditional distributions\\
+		\texttt{link}& \texttt{Array\{String, 1\}}&Link functions\\
+		\texttt{pastObs}& \texttt{Array\{Integer, 1\}}& Past observations included\\
+		\texttt{pastMean}&\texttt{Array\{Integer, 1\}} & Past means included \\
+		\texttt{X}&\texttt{Array\{Abstract Float, 2\}}&Regressor matrix\\
+		\texttt{external}&\texttt{Array\{Bool, 1\}}&Are regressors external?\\
+		\texttt{zi}&\texttt{Bool}&Zero inflation\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+In contrast to the INGARCH models, two distributions are specified for $\mathcal{D}_1$ and $\mathcal{D}_2$ as well as two link functions $f_1$ and $f_2$ in definition \ref{inarma_model}. The specification \texttt{INARModel} has no entry \texttt{pastMean} and \texttt{INMAModel} has no entry \texttt{pastObs}.
+
+Implementing model types and subtypes like that allows to define functions based on the model and use multiple dispatch. For example, likelihood evaluation of an INGARCH(1, 1) model requires a loop, while it does not for INARCH models. A likelihood function can be implemented for the general class of INGARCH models and a more specific version, potentially more efficient, for INARCH models.
+
+To create an object that specifies a model, the user can either use constructors, for example calling \texttt{INGARCHModel} as function and giving the entries as input or use the wrapper function \texttt{Model}. The advantage of a wrapper function is that it can be implemented for any type of input and default values can be given. Table \ref{tab_Model} summarizes the input of \texttt{Model()} and its default values. If no input is given, the function returns a model specification for IID Poisson distributed variables, no regressors and no zero inflation. The argument \texttt{model} gives the general framework, either \texttt{\quo INGARCH\quo} or \texttt{\quo INARMA\quo}, \texttt{distr} gives the conditional distribution(s), either \texttt{\quo Poisson\quo} or \texttt{\quo NegativeBinomial\quo}. Thereby, it can be either the string itself of a vector of strings for example in case of an INARMA model with regressors. The same holds for the link function(s), which can be either \texttt{\quo Linear\quo} or \texttt{\quo Log\quo}. As input for this wrapper function, the regressors can be a vector if there is only one regressor, or - in case of multiple regressors, as matrix where it does not matter if regressors are collected column-wise or row-wise. The function aims at correcting the input as good as possible, for example specifying which past observations are used in the conditional mean of an INGARCH needs to be given in the INGARCHModel struct as vector of integers. The wrapper function also accepts scalars or ranges given by \texttt{1:3} or such. The output of \texttt{Model()} is an object of type \texttt{INGARCHModel}, \texttt{INARCHModel}, \texttt{IIDModel}, \texttt{INARMAModel}, \texttt{INARModel} or \texttt{INMAModel}. Thereby, \texttt{Model(pastObs = 1)} returns an object of type \texttt{INARCHModel} rather than of type \texttt{INGARCHModel} with $q = 0$. 
+
+\begin{table}[H]
+	\centering
+	\caption{\texttt{Model} - Wrapper function to create count model specification}
+	\label{tab_Model}
+	\begin{tabular}{llll}
+		\toprule
+		\toprule
+		Input&Type&Default&Description\\
+		\midrule
+		\texttt{model} &undefined&\texttt{\quo INGARCH\quo}&Framework\\
+		\texttt{distr}&undefined&\texttt{\quo Poisson\quo}&Conditional distribution(s).\\
+		\texttt{link}&undefined&\texttt{\quo Linear\quo}&Link function \\
+		\texttt{pastObs}&undefined&\texttt{[]}& Past observations included\\
+		\texttt{pastMean}&undefined&\texttt{[]}& Past means included \\
+		\texttt{X}&undefined&\texttt{[]}&Regressor matrix\\
+		\texttt{external}&undefined&\texttt{[]}&Are regressors external?\\
+		\texttt{zi}&undefined&\texttt{false}&Zero inflation\vspace{0.5cm}\\
+		Output&&&\\
+		\midrule
+		unnamed&\texttt{<:CountModel}&&Model specification\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
+To parametrize a model, another structure is defined, which is summarized in Table \ref{tab_parameter}. This structure is an alternative to merging all parameters to one vector and run into danger of loosing track of the mapping. However, it might be handy to work with parameters as a vector, for example during maximization of the likelihood. For that reason, two functions are introduced that switch between the two ways of parametrization. These functions are described in Tables \ref{tab_theta2par} and \ref{tab_par2theta}.
+
+\begin{table}[H]
+	\centering
+	\caption{\texttt{parameter} - Parameters of a Count Model}
+	\label{tab_parameter}
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Variable&Type&Description\\
+		\midrule
+		$\beta_0$&\texttt{AbstractFloat}&Intercept\\
+		$\alpha$&\texttt{Array\{AbstractFloat, 1\}}&Coefficients of past observations\\
+		$\beta$&\texttt{Array\{AbstractFloat, 1\}}&Coefficients of past means\\
+		$\eta$&\texttt{Array\{AbstractFloat, 1\}}&Coefficients of regressors\\
+		$\phi$&\texttt{Array\{AbstractFloat, 1\}}&Overdispersion parameters\\
+		$\omega$&\texttt{AbstractFloat}&Zero inflation probability\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\caption{\texttt{\theta 2par} - Mapping between parameter vector and struct}
+	\label{tab_theta2par}
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Input&Type&Description\\
+		\midrule
+		\texttt{\theta}&\texttt{Array\{AbstactFloat, 1\}}&Parameter vector\\
+		\texttt{model}&\texttt{CountModel}&Model specifications\vspace{0.5cm}\\
+		Output&&\\
+		\midrule
+		pars & \texttt{parameter} & Parameters (struct)\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\caption{\texttt{par2\theta} - Mapping between parameter struct and vector}
+	\label{tab_par2theta}
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Input&Type&Description\\
+		\midrule
+		pars & \texttt{parameter} & Parameters (struct)\\
+		\texttt{model}&\texttt{CountModel}&Model specifications\vspace{0.5cm}\\
+		Output&&\\
+		\midrule
+		\texttt{\theta}&\texttt{Array\{AbstractFloat, 1\}}&Parameter vector\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+When working with certain models, there might be parameter restrictions to ensure stationarity and positivity of conditional means as well as overdispersion parameters. In any case, $\phi> 0$ and $\omega\in[0, 1]$ must hold. For an INGARCH with linear link, the restrictions are $\beta_0>0$, $\alpha_i\ge 0$, $\beta_i\ge 0$, $\eta_i\ge 0$, and $\sum_{i = 1}^p\alpha_i + \sum_{i = 1}^q \beta_i < 1$. For an INGARCH with log-linear link, the restrictions are $|\alpha_i| < 1$, $|\beta_i| < 1$ and $|\sum_{i = 1}^p\alpha_i + \sum_{i = 1}^q \beta_i| < 1$.\\
+For the INARMA model, $\alpha_i\ge 0$ and $\beta_i\ge 0$ must always hold and additionally, $\sum_{i = 1}^p{\alpha_i} \le 1$. The coefficients of regressors must be non-negative if the corresponding link function is the identity link.
+
+To check if parameters are valid for a given model, a function \texttt{parametercheck} is introduced, see Table \ref{tab_parametercheck}. Different methods are implemented for the function depending on the model and the type of parameter input (parameter struct or vector). Multiple dispatch is utilized, so a wrapper function is not needed. 
+
+
+\begin{table}[H]
+	\centering
+	\caption{\texttt{parametercheck} - Check for validity of parameters}
+	\label{tab_parametercheck}
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Input&Type&Description\\
+		\midrule
+		\texttt{\theta} & \texttt{parameter} or \texttt{Array\{AbstractFloat, 1\}} & Parameters\\
+		\texttt{model}&\texttt{CountModel}&Model specifications\vspace{0.5cm}\\
+		Output&&\\
+		\midrule
+		unnamed&\texttt{Bool}&Are parameters valid?\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
+
+\subsection{Simulate Time Series}
+
+Before introducing a function to create artificial time series from above frameworks, the thinning operator $\circ$ is implemented in Julia in different ways. First, the binomial thinning is defined as described before. In Julia the expression \texttt{p$\circ$X} for a given \texttt{p} $\in[0, 1]$ and integer \texttt{X} performs the binomial thinning. An extension using a common random number \texttt{u} is implemented as \texttt{$\circ$(p, X, u)}.
+Alternatively, thinning may be defined for a distribution \texttt{d} and an integer \texttt{X} as
+\[
+	\texttt{d}\circ \texttt{X} = \sum_{i = 1}^{\texttt{X}} Z_i \qquad Z_i\overset{\text{iid}}{\sim} \texttt{d}\text{ .}
+\]Again, a version using a common random number \texttt{u} is added as \texttt{$\circ$(d, X, u)}. A last generalization for any distribution \texttt{dI} and an integer distribution \texttt{dO} is introduced such that \texttt{dI $\circ$ dO} computes $\sum_{i = 1}^X Z_i$ with $X$ distributed according to \texttt{dO} and $Z_i$ are iid distributed according to \texttt{dI}.
+
+Next, the function \texttt{simulate} is described, summarized in Table \ref{tab_simulate}. It contains different methods separated by model type and type of parameters (given as vector or struct). Only valid parameters are accepted. 
+The conditional mean process of an INGARCH process is initialized by its marginal mean, the first observations of an INARMA process are simulated without autocorrelation. Then \texttt{T + burnin} observations are generated and the first \texttt{burnin} observations \texttt{discarded}. Alternatively, the user can set the first observations with the argument \texttt{pinfirst}. This can for example be helpful when simulating time series with regressors. Ignoring regressors during the burnin phase may lead to a time series that levelled off incorrectly. If \texttt{pinfirst} is not specified and a time series with regressors shall be created, the default setting is to use the regressors for $t = 1$ during the burnin.
+
+\begin{table}[H]
+	\caption{\texttt{simulate} - Simulate Time Series}
+	\label{tab_simulate}
+	\centering
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Input&Type&Description\\
+		\midrule
+		\texttt{T}&\texttt{Integer}&Length of time series\\
+		\texttt{model}&\texttt{CountModel}&Model specification\\
+		\texttt{$\theta$}&\texttt{parameter} or \texttt{Array\{AbstractFloat, 1\}}&Parameters\\
+		\texttt{burnin}&\texttt{Integer}&Burnin phase (default 500)\\
+		\texttt{pinfirst} & \texttt{Array\{Integer, 1\}} & Pin first values of time series\vspace{0.5cm}\\
+		Output&&\\
+		\midrule
+		\texttt{y}&\texttt{Array\{Integer, 1\}}&Simulated time series\\
+		\texttt{$\lambda$}&\texttt{Array\{AbstractFloat, 1\}}&Conditional means (INGARCH)\\
+		\texttt{$\nu$}&\texttt{Array\{AbstractFloat, 1\}}&See model definition (INGARCH)\\
+		\texttt{$\lambda_{\text{zi}}$} & \texttt{Array\{AbstractFloat, 1\}\}} & Conditional means with ZI (INGARCH)\\
+		\texttt{R}& \texttt{Array\{Int64, 1\}} & Innovation process (INARMA)\\ 
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
+
+\subsection{Likelihood Computation}
+
+Estimation and inference in the scope are - up to now - likelihood based exclusively. To prepare a likelihood function, some functions are defined first. For the INGARCH framework, one internal function called \texttt{LinPred} is introduced. Its use is to compute the linear predictors $\lambda_t$ and $\nu_t$, given a model and parameters. Different methods are implemented depending on the model. As it is only used internally, parameters are only accepted as structure. Due to repeated calls during likelihood maximization, the focus for this function is on its efficiency. An argument \texttt{initiate} specifies how the first linear predictors are computed. \texttt{\quo first\quo} sets it to the first observation of the time series, \texttt{\quo intercept\quo} sets the first values to the expectation if $\alpha_i = 0$ and $\beta_i = 0$, whereas \texttt{\quo marginal\quo} sets the first values to the marginal mean. 
+
+The thinning based INARMA process defined the observable process $Y_t$ as a sum of different components. Thus, for likelihood computation given the distributions of the single components, a convolution function is needed. For two discrete random variables, say $X_1$ and $X_2$, the function \texttt{convolution} computes the distribution of $X_1 + X_2$. As input it needs a vector of probabilities $(P(X_1 = 0), P(X_1 = 1), ..., P(X_1 = k))'$ and $(P(X_2 = 0), P(X_2 = 1), ..., P(X_2 = k))'$ and gives out $P(X_1 + X_2 = i)$ for $i = 1, ..., k$. Another internally used function called \texttt{GetProbFromP} is defined. It takes a matrix \texttt{P} $\in \mathbb{R}^{M + 1, K}$ of probabilities $\texttt{P}_{ij} = P(X_{j} = i)$ as input and returns the probability vector $P(X_1 + ... + X_K = i)$ with $i = 0, ..., M$. Both convolution functions are implemented with focus on efficiency.
+
+The log-likelihood function \texttt{ll}, see Table \ref{tab_ll}, is then defined. For any model besides INARMA($p$, $q$) where $q\ge 3$, it computes the log-likelihood as well as the contributions of single observations to the log-likelihood. This enables to compute for example information criteria on the basis of the same number of observations in case of different model orders, dropping the same first observations.
+
+\begin{table}[H]
+	\caption{\texttt{ll} - Computation of Log-Likelihood}
+	\label{tab_ll}
+	\centering
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Input&Type&Description\\
+		\midrule
+		\texttt{y}&\texttt{Array\{AbstractFloat, 1\}}&Time series\\
+		\texttt{model}&\texttt{CountModel}&Model specification\\
+		\texttt{\theta}&\texttt{parameter}&Parameters\\
+		\texttt{initiate}&\texttt{String}&Initialization method (INGARCH)\vspace{0.5cm}\\
+		Output&&\\
+		\midrule
+		LL&\texttt{Float64}&Log-Likelihood\\
+		LLs&\texttt{Array\{Float64, 1\}}&Contributions to log-likelihood\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Estimation Settings}
+
+To prepare the estimation function, two structures are defined, which unify the estimation settings and the reporting of results. Estimation settings are defined as structure \texttt{MLEControl}, see Table \ref{tab_MLEControl}. It collects information about initial values for the maximization, the maximization procedure and an the choice whether confidence intervals shall be computed or not. Optimizing routines are - up to now - limited to \texttt{\quo NelderMean\quo}, \texttt{\quo BFGS\quo} and \texttt{\quo LBFGS\quo}. Additionally a wrapper function \texttt{MLESettings}, see Table \ref{tab_MLESettings}, makes specification easier. The initial values can either be given by the user in form of a vector or parameter struct. As a default if not put in, the initial values are chosen in a way that matches theoretical marginal mean and sample mean of the time series. If the given or default initial values result in an infinite likelihood, a random search for starting values is carried out.
+
+\begin{table}[H]
+	\centering
+	\caption{\texttt{MLEControl} - Estimation Settings}
+	\label{tab_MLEControl}
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Variable&Type&Description\\
+		\midrule
+		\texttt{init} &\texttt{parameter}&Initial values\\
+		\texttt{optimizer}&\texttt{String}&Maximization method\\
+		\texttt{ci}& \texttt{Bool}&Shall confidence intervals be computed\\
+		\texttt{maxEval}&\texttt{Integer}&Maximum number of likelihood evaluations\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[H]
+	\caption{\texttt{MLESettings} - Create Object for Estimation Settings}
+	\label{tab_MLESettings}
+	\centering
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Input&Type&Description\\
+		\midrule
+		\texttt{y}&\texttt{Array\{AbstractFloat, 1\}}&Time series\\
+		\texttt{model}&\texttt{CountModel}&Model specification\\
+		\texttt{init}&\texttt{parameter} or \texttt{Array\{AbstractFloat, 1\}}&Initial parameters\\
+		\texttt{optimizer}&\texttt{String}&Optimizing routine\\
+		\texttt{ci}&\texttt{Bool}&Compute confidence intervals?\vspace{0.5cm}\\
+		Output&&\\
+		\midrule
+		unnamed&\texttt{MLEControl}&Estimation Settings\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+If the distribution or link function is misspelled or simply unknown, it gives out a warning that the default is used. If the string specifying an optimization function is misspelled or unknown, the BFGS method is used as default and a warning is printed again. It returns an error if one of the following occurs: The size of \texttt{external} does not match the number of rows in \texttt{X}. The length of \texttt{y} does not match the number of columns in \texttt{X}. The parameters given in \texttt{init} does not match the number of parameters for the specified model or the initial parameters \texttt{init} are not valid.
+
+A unified structure of estimation results is defined next. It shall contain every information needed to assess model choice and perform predictions afterwards. Two structures called \texttt{INGARCHResults} and \texttt{INARMAResults} and holds the entries given in Table \ref{tab_INGARCHresults} and Table \ref{tab_INARMARresults}
+
+\begin{table}[H]
+	\centering
+	\caption{\texttt{INGARCHResults} - Result Specification}
+	\label{tab_INGARCHResults}
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Variable&Type&Description\\
+		\midrule
+		\texttt{y}&\texttt{Array\{Integer, 1\}}&Time series\\
+		\texttt{$\theta$}&\texttt{Array\{AbstractFloat, 1\}}&Estimated parameters (vector)\\
+		\texttt{pars}&\texttt{parameter}&Estimated parameters (struct)\\
+		\texttt{$\lambda$}&\texttt{Array\{AbstractFloat, 1\}}&Conditional means\\
+		\texttt{residuals}&\texttt{Array\{AbstractFloat, 1\}}&Residuals\\
+		\texttt{LL}&\texttt{AbstractFloat}&Maximum log-likelihood\\
+		\texttt{LLs}&\texttt{Array\{AbstractFloat, 1\}}&Log-likelihood contributions\\
+		\texttt{nPar}&\texttt{Integer}&Number of parameters\\
+		\texttt{nObs}&\texttt{Integer}&Number of observations\\
+		\texttt{se}&\texttt{Array\{AbstractFloat, 1\}}&Standard errors\\
+		\texttt{CI}&\texttt{Array\{AbstractFloat, 2\}}&Confidence intervals\\
+		\texttt{model}&\texttt{INGARCH}&Model specifications\\
+		\texttt{converged} & \texttt{Bool} & Has maximization converged?\\
+		\texttt{MLEControl} & \texttt{MLEControl} & Estimation settings\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\caption{\texttt{INARMAResults} - Result Specification}
+	\label{tab_INARMAResults}
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Variable&Type&Description\\
+		\midrule
+		\texttt{y}&\texttt{Array\{Integer, 1\}}&Time series\\
+		\texttt{$\theta$}&\texttt{Array\{AbstractFloat, 1\}}&Estimated parameters (vector)\\
+		\texttt{pars}&\texttt{parameter}&Estimated parameters (struct)\\
+		\texttt{LL}&\texttt{AbstractFloat}&Maximum log-likelihood\\
+		\texttt{LLs}&\texttt{Array\{AbstractFloat, 1\}}&Log-likelihood contributions\\
+		\texttt{nPar}&\texttt{Integer}&Number of parameters\\
+		\texttt{nObs}&\texttt{Integer}&Number of observations\\
+		\texttt{se}&\texttt{Array\{AbstractFloat, 1\}}&Standard errors\\
+		\texttt{CI}&\texttt{Array\{AbstractFloat, 2\}}&Confidence intervals\\
+		\texttt{model}&\texttt{INGARCH}&Model specifications\\
+		\texttt{converged} & \texttt{Bool} & Has maximization converged?\\
+		\texttt{MLEControl} & \texttt{MLEControl} & Estimation settings\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Estimation}
+
+The function to estimate parameters of a given model and conduct inference, \texttt{fit}, is summarized in Table \ref{tab_fit}. The maximization of the log-likelihood is done numerically using the \texttt{Optim} package. Restriction of parameter space are taken into account by returning negative infinity if parameter input is invalid. In case of an INGARCH process, the user might use the Quasi-Poisson estimation introduced by \citet{fokianos_2014}. Therefore, a Poisson estimation must be computed first and the results forwarded to the function \texttt{QPois}, which takes only the estimation results as input and changes them.
+The overdispersion parameter is then estimated by solving
+\begin{align*}
+	\sum_{t = \max\{P, Q\} + 1}^T \frac{(y_t - \hat{\lambda}_t)^2}{\hat{\lambda_t} - \frac{\hat{\lambda}_t^2}{\phi}} = T - P - Q - r - 1
+\end{align*}for $\phi$. Thereby $\hat{\lambda}_t$ is the conditional mean at time $t$ using the estimated parameters, $P$ and $Q$ are the highest lags considered for past observations and past means respectively. In case of non-consecutive lags, these differ from $p$ and $q$.
+
+In case confidence intervals shall be computed, the \texttt{Calculus} package provides methods to approximate the Hessian numerically giving standard errors. For user convenience, a summary of estimation results is optionally and by default printed to the console. In similar fashion as in R asterisks printed represent a level of significance from zero, one asterisk for a p-value below 5\%, two for a p-value below 1\% and three if the p-value is below 0.1\%. For a linear link, these indicators are hardly meaningful, because testing for example $\alpha_1 > 0$ implies that the parameter is on the border of admissible parameter space under the null hypothesis, and the method of inference is invalid. 
+
+\begin{table}[H]
+	\caption{\texttt{fit} - Estimation Function}
+	\label{tab_fit}
+	\centering
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Input&Type&Description\\
+		\midrule
+		\texttt{y}&\texttt{Array\{Integer, 1\}}&Time series\\
+		\texttt{model}&\texttt{CountModel}&Model specification\\
+		\texttt{MLEControl}&\texttt{MLEControl}&Estimation settings (optional)\\
+		\texttt{printResults} & \texttt{Bool} & Print results? (optional)\\
+		\texttt{initiate} & \texttt{String} & Initialization method (optional)\vspace{0.5cm}\\
+		Output&&\\
+		\midrule
+		\texttt{results}&\texttt{INGARCHResults} or \texttt{INARMRAResults}&Results\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
+\subsection{Model Diagnostics}
+
+To check for model accuracy, two different tools were implemented in CountTimeSeries. First, different information criteria are provided, namely AIC, BIC and HQIC, which all need only the results from estimation as necessary input and optional the integer argument \texttt{dropfirst}, see Table \ref{tab_ic}. This allows to compare information criteria for models of different order.
+
+\begin{table}[H]
+	\caption{\texttt{AIC}, \texttt{BIC}, \texttt{HQIC} - Information Criteria}
+	\label{tab_ic}
+	\centering
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Input&Type&Description\\
+		\midrule
+		\texttt{results}&\texttt{INGARCHResults} or \texttt{INARMAResults}&Results of estimation\\
+		\texttt{dropfirst} & \texttt{Integer} & Number of observations to be ignored for log-likelihood\vspace{0.5cm}\\
+		Output&&\\
+		\midrule
+		\texttt{ic}&\texttt{AbstractFloat}&AIC, BIC or HQIC depending on function\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+Another way to asses model choice is the non-randomized PIT histogram introduced by \citet{czado_2009}. Conditional distributions and the observed outcomes are compared and transformed giving a histogram which is uniform distributed if the model choice is correct.
+
+Let $P_t(y) = \text{P}(Y_t = y|\mathcal{F}_{t-1})$ denote the conditional distribution of $Y_t$ given the processes past. The PIT function $F_t: [0, 1] \rightarrow \mathbb{R}^+$ is defined as
+\[
+	F_t(u|y) = \begin{cases}0 & \hphantom{\text{ \quad if \quad}}u \le P_t(y-1)\\
+	\frac{u - P_t(y-1)}{P_t(y) - P_t(y-1)}&\text{ \quad if \quad}P_t(y-1)<u<P_t(y)\\
+	1 &\hphantom{\text{\quad if \quad}}u\ge P_t(u)\end{cases}
+\]and the mean PIT function as
+\[
+	\bar{F}(u) = \frac{1}{T}\sum_{t = 1}^T{F_t(u|y_t)}
+\]for $u\in[0, 1]$. In a last step, heights of bins $f_h$ with $h = 1, ..., H$ in the PIT histogram is calculated as
+\[
+	f_h = \bar{F}\left(\frac{h}{H}\right) - \bar{F}\left(\frac{h-1}{H}\right)
+\]
+Because of the cumbersome computation of the distribution of $Y_t$ given the processes past for an INARMA with $q > 0$, the pit histogram only supports INAR models up to now.
+In the CountTimeSeries package, a function \texttt{pit} is provided, where the users can input the results of an estimation conveniently, choose the number of bins to be plotted (with ten as default) and a level of significance to test the uniform distribution. For \texttt{level = 0}, no confidence region of bins is plotted, to obtain the 95\% confidence region, \texttt{level} needs to be set to 0.95.
+
+\begin{table}[H]
+	\caption{\texttt{pit} - Non-Randomized PIT histogram}
+	\label{tab_pit}
+	\centering
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Input&Type&Description\\
+		\midrule
+		\texttt{results}&\texttt{INGARCHResults} or \texttt{INARMAResults}&Results of estimation\\
+		\texttt{nbins} & \texttt{Integer} & Number of bins\\
+		\texttt{level} & \texttt{AbstractFloat} $\in [0, 1)$& Level of significance\vspace{0.5cm}\\
+		Output&&\\
+		\midrule
+		unnamed&\texttt{Array\{AbstractFloat, 1\}}&height of bins\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Prediction}
+
+After choosing a suitable model and fitting it to an observed time series, the user might be interested in predicting the future course of the time series. Forecasting can be performed deterministically in case of an INGARCH framework. For a one-step ahead forecast given the time series up to $t = T$, $\hat{Y}_{T+1|T}$, the conditional mean of $Y_{T+1}$ is used. To forecast further, unobserved $Y_{T+1}, Y_{T+2}, ...$ are replaced by their corresponding prediction. 
+For INARMA models and if prediction intervals shall be computed, predictions can be found by a parametric bootstrap. The user may specify the number of time series being simulated by the argument \texttt{nChains}. The mean across all chains is used as point prediction, quantiles approximate 95\% prediction intervals. 
+When regressors are included in the model specification, their values for observations to be predicted must be provided. 
+The gray rows in Table \ref{tab_predict} indicate which arguments only need to be given for a simulation based prediction and also what output is given in that case.
+
+\begin{table}[H]
+	\caption{\texttt{predict} - Prediction Function}
+	\label{tab_predict}
+	\centering
+	\begin{tabular}{lll}
+		\toprule
+		\toprule
+		Input&Type&Description\\
+		\midrule
+		\texttt{results}&\texttt{Rspec}&Results from estimation\\
+		\texttt{h}&\texttt{Mspec}&Model specification\\
+		\rowcolor{lightgray}\texttt{nChain}&\texttt{Int64}&Prediction horizon\\
+		\texttt{Xnew}&\texttt{Array\{Float64, 2\}}&New regressors\vspace{0.5cm}\\
+		Output&&\\
+		\midrule
+		pred&\texttt{Array\{Float64, 1\}}&Predicted values\\
+		\rowcolor{lightgray}\texttt{Qmat}&\texttt{Array\{Float64, 2\}}&95\% Prediction intervals\\
+		\rowcolor{lightgray}\texttt{predMat}&\texttt{Array\{Float64, 2\}}&Matrix of prediction chains\\
+		\bottomrule
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\section{Outlook}
+
+The Julia package presented here is designed to cover a broad collection of count data time series models that are frequently used in practice. Fast computation time and a suitable infrastructure make simulation studies possible.
+The modular skeleton on the package allows for easy extension. Planned, but not yet realized are the following:\\
+Theoretical moments for different model specifications serve two purposes. Firstly, they can be used to compare theoretical moments for a fitted model with their sample counterparts. Secondly, once such functions are implemented, a GMM estimation can be added as an alternative to likelihood based methods.\\
+Conceivable is also to add the option of Bayesian estimation to the package. To incorporate the infrastructure of a Metropolis-Hastings or Gibbs-Sampling, only one wrapper function would need to be extended.\\
+In a similar way to existing R packages, an outlier detection function could further be added. Closely related to it and a possible extension are robust estimation techniques.\\
+Making multivariate count data time series modeling possible would also be an interesting add-on to the package.
+
+
+\newpage
+
+% References
+\bibliography{count_data}
+\bibliographystyle{natdin_engl}
+
+
+\end{document}

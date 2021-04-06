@@ -106,7 +106,7 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::IIDModel)
         ω = 0.0
     end
 
-    parameter(β0, Array{Float64, 1}([1]), Array{Float64, 1}([1]), η, ϕ, ω)
+    parameter(β0, Array{Float64, 1}([]), Array{Float64, 1}([]), η, ϕ, ω)
 end
 
 function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARMAModel)
@@ -115,6 +115,13 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARMAModel)
     r = length(model.external)
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    if r == 0
+        nb2 = false
+    else
+        if sum(model.external) == 0
+            nb2 = false
+        end
+    end
     zi = model.zi
 
     nPar = 1 + p + q + r + nb1 + nb2 + zi
@@ -156,10 +163,17 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARModel)
     r = length(model.external)
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    if r == 0
+        nb2 = false
+    else
+        if sum(model.external) == 0
+            nb2 = false
+        end
+    end
     zi = model.zi
 
     nPar = 1 + p + r + nb1 + nb2 + zi
-
+    
     if length(θ) != nPar
         error("Length of θ does not match model specification.")
     end
@@ -195,6 +209,13 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INMAModel)
     r = length(model.external)
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    if r == 0
+        nb2 = false
+    else
+        if sum(.!model.external) > 0
+            nb2 = false
+        end
+    end
     zi = model.zi
 
     nPar = 1 + q + r + nb1 + nb2 + zi

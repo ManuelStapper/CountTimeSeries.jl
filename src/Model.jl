@@ -18,7 +18,7 @@ Model(model = "INARMA", pastMean = 1, zi = true) # Zero inflated INMA(1)
 
 For details, see [Documentation](https://github.com/ManuelStapper/CountTimeSeries.jl/blob/master/CountTimeSeries_documentation.pdf)
 """
-function Model(;model::String = "INGARCH",
+function Model(;model = "INGARCH",
     distr = "Poisson",
     link = "Linear",
     pastObs = Array{Int64, 1}([]),
@@ -175,8 +175,10 @@ function Model(;model::String = "INGARCH",
 
     r = length(external)
 
+    X = X .+ 0.0
+
     if typeof(X) == UnitRange{Int64}
-        X = reshape(collect(X), (1, length(X))) .+ 0.0
+        X = reshape(collect(X), (1, length(X)))
     end
 
     if length(X) == 0
@@ -240,6 +242,16 @@ function Model(;model::String = "INGARCH",
                         error("Negative regressors invalid for linear link.")
                     end
                 end
+            end
+        end
+    end
+
+    if sum(distr .== "NegativeBinomial") == 2
+        if r == 0
+            distr[2] = "Poisson"
+        else
+            if rE == 0
+                distr[2] = "poisson"
             end
         end
     end

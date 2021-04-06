@@ -88,6 +88,7 @@ function ll(y::Array{T, 1} where T<:Integer,
 
     T = length(y)
     X = model.X
+    r = length(model.external)
 
     p = length(model.pastObs)
     if p == 0
@@ -96,7 +97,6 @@ function ll(y::Array{T, 1} where T<:Integer,
         P = maximum(model.pastObs)
     end
 
-    r = length(model.external)
     M = P
 
     logl = (model.link == "Log")
@@ -213,6 +213,7 @@ function ll(y::Array{T, 1} where T<:Integer,
     T = length(y)
     ymax = maximum(y)
     X = model.X
+    r = length(model.external)
 
     logl1 = model.link[1] == "Log"
     lin1 = !logl1
@@ -222,6 +223,13 @@ function ll(y::Array{T, 1} where T<:Integer,
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    if r == 0
+        nb2 = false
+    else
+        if sum(model.external) == 0
+            nb2 = false
+        end
+    end
 
     zi = model.zi
 
@@ -232,8 +240,6 @@ function ll(y::Array{T, 1} where T<:Integer,
         Q = maximum(model.pastMean)
     end
     M = Q
-
-    r = length(model.external)
 
     if !parametercheck(θ, model)
         return -Inf, fill(-Inf, T)
@@ -465,8 +471,14 @@ function Pmat(λ::Vector{Float64},
         PRtemp = zeros(T)
         for t = 1:T
             PRtemp = pdf.(NegativeBinomial(ϕ[1], ϕ[1]/(ϕ[1] + λ[t])), 0:ymax)
-            PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω./(1 .- PRtemp[1]))
-            PR[1, t] = PRtemp[1] + ω
+            if ω + PRtemp[1] < 1
+                PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω./(1 .- PRtemp[1]))
+                PR[1, t] = PRtemp[1] + ω
+            else
+                PR[2:ymax + 1, t] .= 0.0
+                PR[1, t] = 1.0
+            end
+
         end
     end
 
@@ -474,8 +486,13 @@ function Pmat(λ::Vector{Float64},
         PRtemp = zeros(T)
         for t = 1:T
             PRtemp = pdf.(Poisson(λ[t]), 0:ymax)
-            PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω./(1 .- PRtemp[1]))
-            PR[1, t] = PRtemp[1] + ω
+            if ω + PRtemp[1] < 1
+                PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω./(1 .- PRtemp[1]))
+                PR[1, t] = PRtemp[1] + ω
+            else
+                PR[2:ymax + 1, t] .= 0.0
+                PR[1, t] = 1.0
+            end
         end
     end
 
@@ -643,6 +660,7 @@ function ll(y::Array{T, 1} where T<:Integer,
     T = length(y)
     ymax = maximum(y)
     X = model.X
+    r = Int64(length(model.external))
 
     logl1 = model.link[1] == "Log"
     lin1 = !logl1
@@ -652,6 +670,13 @@ function ll(y::Array{T, 1} where T<:Integer,
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    if r == 0
+        nb2 = false
+    else
+        if sum(model.external) == 0
+            nb2 = false
+        end
+    end
 
     zi = model.zi
 
@@ -669,8 +694,6 @@ function ll(y::Array{T, 1} where T<:Integer,
         Q = Int64(maximum(model.pastMean))
     end
     M = maximum([P, Q])
-
-    r = Int64(length(model.external))
 
     if !parametercheck(θ, model)
         return -Inf, fill(-Inf, T)
@@ -866,6 +889,8 @@ function ll(y::Array{T, 1} where T<:Integer,
     ymax = maximum(y)
     X = model.X
 
+    r = length(model.external)
+
     logl1 = model.link[1] == "Log"
     lin1 = !logl1
 
@@ -874,6 +899,13 @@ function ll(y::Array{T, 1} where T<:Integer,
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    if r == 0
+        nb2 = false
+    else
+        if sum(model.external) == 0
+            nb2 = false
+        end
+    end
 
     zi = model.zi
 
@@ -885,8 +917,6 @@ function ll(y::Array{T, 1} where T<:Integer,
     end
 
     M = P
-
-    r = length(model.external)
 
     if !parametercheck(θ, model)
         return -Inf, fill(-Inf, T)

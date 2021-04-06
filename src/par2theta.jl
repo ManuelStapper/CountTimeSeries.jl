@@ -63,7 +63,7 @@ function par2θ(θ::parameter, model::T where T<:INARMA)
         if length(model.external) == 0
             nϕ -= 1
         else
-            if sum(.!model.external) == 0
+            if sum(model.external) == 0
                 nϕ -= 1
             end
         end

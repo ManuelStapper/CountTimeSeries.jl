@@ -94,6 +94,7 @@ using Test
     for i = 2:6
         predict(res[i], 10, 100, Xnew)
     end
+    predict(res[2], 10, Xnew)
     pit(res[2])
 
     convert(INGARCHModel, models[2])
@@ -112,7 +113,7 @@ using Test
     model = Model(model = "INARMA", pastMean = 1:2, pastObs = 1, zi = true)
     y = simulate(100, model, [10, 0.1, 0.5, 0.2, 0.1])[1]
     ll(y, model, [10, 0.1, 0.5, 0.2, 0.1])
-    
+
     model = Model(zi = true)
     y = simulate(100, model, [10.0, 0.1])[1]
     ll(y, model, [10, 0.1])

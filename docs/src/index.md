@@ -10,14 +10,10 @@ Text
 
 ```@docs
 CountModel
+```
+
+```@docs
 INGARCH
-INARMA
-INGARCHModel
-INARCHModel
-IIDModel
-INARMAModel
-INARModel
-INMAModel
 ```
 
 ## Functions
@@ -27,9 +23,6 @@ Model(;model = "INGARCH", distr = "Poisson", link = "Linear",
       pastObs = [], pastMean = [], X = [],
       external = [], zi = false)
 ```
-
-## Examples
-
 
 ## Index
 ```@index

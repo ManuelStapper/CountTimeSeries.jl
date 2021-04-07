@@ -5,12 +5,6 @@ Abstract type which summarizes all models in the CountTimeSeries.jl package.
 abstract type CountModel end
 
 """
-    INGARCH
-Abstract type which summarizes all models in the INGARCH framework. Subtype of CountModel.
-"""
-abstract type INGARCH<:CountModel end
-
-"""
     INARMA
 Abstract type which summarizes all models in the INARMA framework. Subtype of CountModel.
 """

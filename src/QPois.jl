@@ -66,7 +66,7 @@ function QPois(results::INGARCHresults)
 
     if sign(rootFun(-100, results)) == sign(rootFun(10000, results))
         println("Root search failed. Overdispersion parameter is set to 10000")
-        ϕest = 10000
+        ϕest = 10000.0
     else
         ϕest = exp(find_zero(x -> rootFun(x, results), 10))
     end

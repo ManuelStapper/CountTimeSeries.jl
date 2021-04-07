@@ -5,9 +5,6 @@ function convert(::Type{INARCHModel}, x::INGARCHModel)
 end
 
 function convert(::Type{INGARCHModel}, x::INARCHModel)
-    if length(x.pastMean) != 0
-        error("Can not convert model to INARCHModel.")
-    end
     INGARCHModel(x.distr, x.link, x.pastObs, Array{Int64, 1}([]), x.X, x.external, x.zi)
 end
 

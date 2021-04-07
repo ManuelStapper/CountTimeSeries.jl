@@ -173,7 +173,7 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARModel)
     zi = model.zi
 
     nPar = 1 + p + r + nb1 + nb2 + zi
-    
+
     if length(θ) != nPar
         error("Length of θ does not match model specification.")
     end
@@ -212,7 +212,7 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INMAModel)
     if r == 0
         nb2 = false
     else
-        if sum(.!model.external) > 0
+        if sum(model.external) == 0
             nb2 = false
         end
     end

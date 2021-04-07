@@ -4,12 +4,18 @@ function show(x::T where T<:CountModel)
     println("")
     println("Distribution: "*"\t\t"*reduce(*, x.distr.*" "))
     println("Link: "*"\t\t\t"*reduce(*, x.link.*" "))
-    if length(x.pastObs) > 0
-        println("Past Obs: "*"\t\t"*reduce(*, string.(x.pastObs).*" "))
+    if typeof(x) != IIDModel
+        if length(x.pastObs) > 0
+            println("Past Obs: "*"\t\t"*reduce(*, string.(x.pastObs).*" "))
+        end
     end
-    if length(x.pastMean) > 0
-        println("Past Mean: "*"\t\t"*reduce(*, string.(x.pastMean).*" "))
+
+    if typeof(x) == INGARCHModel
+        if length(x.pastMean) > 0
+            println("Past Mean: "*"\t\t"*reduce(*, string.(x.pastMean).*" "))
+        end
     end
+
     if length(x.X) > 0
         println("X: "*"\t\t\t"*string(size(x.X)))
     else
@@ -49,8 +55,8 @@ end
 
 function show(x::T where T<:INARMA)
     println("")
-    println("Distribution: "*"\t\t"*x.distr)
-    println("Link: "*"\t\t\t"*x.link)
+    println("Distribution: "*"\t\t"*x.distr[1]*" and "*x.distr[2])
+    println("Link: "*"\t\t\t"*x.link[1]*" and "*x.link[2])
     if typeof(x) != INMAModel
         if length(x.pastObs) > 0
             println("Past Obs: "*"\t\t"*reduce(*, string.(x.pastObs).*" "))

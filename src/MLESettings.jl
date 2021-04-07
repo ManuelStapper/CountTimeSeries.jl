@@ -163,7 +163,7 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
         if r == 0
             nϕ -= 1
         else
-            if sum(.!model.external) > 0
+            if sum(model.external) == 0
                 nϕ -= 1
             end
         end
@@ -218,7 +218,7 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
         if r == 0
             nϕ -= 1
         else
-            if sum(.!model.external) > 0
+            if sum(model.external) == 0
                 nϕ -= 1
             end
         end
@@ -272,7 +272,7 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
         if r == 0
             nϕ -= 1
         else
-            if sum(.!model.external) > 0
+            if sum(model.external) == 0
                 nϕ -= 1
             end
         end

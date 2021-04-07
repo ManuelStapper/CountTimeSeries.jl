@@ -5,10 +5,8 @@ import Base.∘
 
 # Standard Binomial Thinning
 """
-    p∘X
-    d∘X
-    p∘d
-Thinning operator.
+    ∘
+Thinning operator for p∘X, d∘X or p∘d.
 
 * `p`: Thinning probability (∈ [0, 1])
 * `X`: Positive integer

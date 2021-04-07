@@ -2,9 +2,8 @@
 # Input similar to Mspec, but allows for different inputs
 
 """
-    Model(;model = "INGARCH", distr = "Poisson", link = "Linear",
-          pastObs = [], pastMean = [], X = [],
-          external = [], zi = false)
+    Model(model, distr, link, pastObs, pastMean, X,
+          external, zi)
 Wrapper function to define count data models.
 Default setting is an an IID Poisson process without regressors or zero inflation.
 

@@ -1,8 +1,7 @@
 # Wrapper for fitting Count Data Models
 
 """
-    fit(y, model, printResults = true, initiate = "first")
-    fit(y, model, MLEControl, printResults = true, initiate = "marginal")
+    fit(y, model, MLEControl, printResults = true, initiate = "first")
 Function to fit model to count time series.
 
 * `y`: Time series

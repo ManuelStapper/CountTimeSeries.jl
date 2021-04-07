@@ -1,5 +1,5 @@
 """
-    BIC(results::Rspec, dropfirst::Int64)
+    BIC(results, dropfirst)
 Computing the Bayes information criterion.
 
 * `results`: Result from fitting a count data model.

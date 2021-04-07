@@ -1,7 +1,7 @@
 # Settings for fitting
 
 """
-    MLEControl(init::parameter, optimizer::String, ci::Bool)
+    MLEControl(init::parameter, optimizer::String, ci::Bool, maxEval<:Integer)
 Structure for esitmation settings.
 
 * `init`: Initial values for optimization

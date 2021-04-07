@@ -20,13 +20,13 @@ abstract type INARMA<:CountModel end
 """
     INGARCHModel
 Struct to specify an INGARCH model. It contains information on
-* Distribution
-* Link function
-* Past observations included in the conditional mean definition
-* Past mean included in the conditional mean definition
-* Regressor matrix X
-* external: Indicator which regressors enter the system externally
-* zi: Indicator. Is zero inflation modelled?
+* `distr`: Distribution
+* `link`: Link function
+* `pastObs`: Past observations included in the conditional mean definition
+* `pastMean`: Past mean included in the conditional mean definition
+* `X`: Regressor matrix
+* `external`: Indicator which regressors enter the system externally
+* `zi`: Indicator. Is zero inflation modelled?
 """
 mutable struct INGARCHModel<:INGARCH
     distr::String
@@ -41,12 +41,12 @@ end
 """
     INARCHModel
 Struct to specify an INARCH model. It contains information on
-* Distribution
-* Link function
-* Past observations included in the conditional mean definition
-* Regressor matrix X
-* external: Indicator which regressors enter the system externally
-* zi: Indicator. Is zero inflation modelled?
+* `distr`: Distribution
+* `link`: Link function
+* `pastObs`: Past observations included in the conditional mean definition
+* `X`: Regressor matrix
+* `external`: Indicator which regressors enter the system externally
+* `zi`: Indicator. Is zero inflation modelled?
 """
 mutable struct INARCHModel<:INGARCH
     distr::String
@@ -60,11 +60,11 @@ end
 """
     IIDModel
 Struct to specify an IID model. It contains information on
-* Distribution
-* Link function
-* Regressor matrix X
-* external: Indicator which regressors enter the system externally
-* zi: Indicator. Is zero inflation modelled?
+* `distr`: Distribution
+* `link`: Link function
+* `X`: Regressor matrix
+* `external`: Indicator which regressors enter the system externally
+* `zi`: Indicator. Is zero inflation modelled?
 """
 mutable struct IIDModel<:INGARCH
     distr::String
@@ -77,13 +77,13 @@ end
 """
     INARMAModel
 Struct to specify an INARMA model. It contains information on
-* Distributions
-* Link functions
-* Past observations included
-* Past mean included
-* Regressor matrix X
-* external: Indicator which regressors enter the system externally
-* zi: Indicator. Is zero inflation modelled?
+* `distr`: Distributions (vector)
+* `link`: Link functions (vector)
+* `pastObs`: Past observations included
+* `pastMean`: Past mean included
+* `X`: Regressor matrix
+* `external`: Indicator which regressors enter the system externally
+* `zi`: Indicator. Is zero inflation modelled?
 """
 mutable struct INARMAModel<:INARMA
     distr::Array{String, 1}
@@ -98,12 +98,12 @@ end
 """
     INARModel
 Struct to specify an INAR model. It contains information on
-* Distributions
-* Link functions
-* Past observations included
-* Regressor matrix X
-* external: Indicator which regressors enter the system externally
-* zi: Indicator. Is zero inflation modelled?
+* `distr`: Distributions (vector)
+* `link`: Link functions (vector)
+* `pastObs`: Past observations included
+* `X`: Regressor matrix
+* `external`: Indicator which regressors enter the system externally
+* `zi`: Indicator. Is zero inflation modelled?
 """
 mutable struct INARModel<:INARMA
     distr::Array{String, 1}
@@ -117,12 +117,12 @@ end
 """
     INMAModel
 Struct to specify an INMA model. It contains information on
-* Distributions
-* Link functions
-* Past mean included
-* Regressor matrix X
-* external: Indicator which regressors enter the system externally
-* zi: Indicator. Is zero inflation modelled?
+* `distr`: Distributions (vector)
+* `link`: Link functions (vector)
+* `pastMean`: Past mean included
+* `X`: Regressor matrix
+* `external`: Indicator which regressors enter the system externally
+* `zi`: Indicator. Is zero inflation modelled?
 """
 mutable struct INMAModel<:INARMA
     distr::Array{String, 1}

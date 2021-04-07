@@ -1,7 +1,7 @@
 # Function to translate parameter struct vector of parameters
 
 """
-    par2θ(θ::parameter, model::CountModel)
+    par2θ(θ, model)
 Function two convert parameter struct to vector
 
 * `θ`: Parameter struct

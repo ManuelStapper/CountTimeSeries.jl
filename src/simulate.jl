@@ -3,7 +3,6 @@
 
 """
     simulate(T, model, θ; burnin, pinfirst)
-    simulate(T, model, θ; burnin, pinfirst)
 Function to generate time series from Count Data model.
 
 * `T`: Length of time series

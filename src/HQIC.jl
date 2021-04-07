@@ -1,5 +1,5 @@
 """
-    HQIC(results::Rspec, dropfirst::Int64)
+    HQIC(results, dropfirst)
 Computing the Hannan-Quinn information criterion.
 
 * `results`: Result from fitting a count data model.

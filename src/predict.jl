@@ -1,14 +1,13 @@
 # Wrapper function for prediction
 
 """
-    predict(results, h, Xnew)
     predict(results, h, nChain, Xnew)
 Function for forecasting Count Data models.
 
 * `results`: Estimation results
 * `h`: Number of steps to forecast
-* `nChain`: Number of Chains for simulation based forecast
-* `Xnew`: New values for regressors
+* `nChain`: Number of Chains for simulation based forecast (optional)
+* `Xnew`: New values for regressors (only in case of regressors)
 
 # Example
 ```julia-repl

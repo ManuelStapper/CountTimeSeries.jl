@@ -18,16 +18,13 @@
     INGARCHResults(y, θ, pars, λ, residuals,
           LL, LLs, nPar, nObs, se, CI,
           model, converged, MLEControl)
-    INARMAResults(y, θ, pars,
-          LL, LLs, nPar, nObs, se, CI,
-          model, converged, MLEControl)
 Structure for estimation results.
 
 * `y`: Time series
 * `θ`: Estimates (vector)
 * `pars`: Estimates (parameter)
-* `λ`: Conditional means (INGARCH)
-* `residuals`: Residuals (y - λ) (INGARCH)
+* `λ`: Conditional means
+* `residuals`: Residuals (y - λ)
 * `LL`: Maximum of likelihood
 * `LLs`: Likelihood contributions
 * `nPar`: Number of parameters
@@ -55,6 +52,24 @@ mutable struct INGARCHresults
     MLEControl::MLEControl
 end
 
+"""
+    INARMAResults(y, θ, pars,
+      LL, LLs, nPar, nObs, se, CI,
+      model, converged, MLEControl)
+
+* `y`: Time series
+* `θ`: Estimates (vector)
+* `pars`: Estimates (parameter)
+* `LL`: Maximum of likelihood
+* `LLs`: Likelihood contributions
+* `nPar`: Number of parameters
+* `nObs`: Number of observations
+* `se`: Standard errors
+* `CI`: Confidence intervals
+* `model`: Model specification
+* `converged`: Indicator, convergence of optimization routine?
+* `MLEControl`: Estimation settings used
+"""
 mutable struct INARMAresults
     y::Vector{T} where T<:Integer
     θ::Vector{T} where T<: AbstractFloat

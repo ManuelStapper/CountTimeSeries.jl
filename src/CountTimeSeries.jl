@@ -3,7 +3,6 @@ module CountTimeSeries
 using Optim, Distributions, LinearAlgebra, Plots, Calculus, Roots, Random
 using Test, StatsBase, Distributed
 
-include("INGARCH.jl")
 include("ModelTypes.jl")
 include("parameter.jl")
 include("MLEControl.jl")

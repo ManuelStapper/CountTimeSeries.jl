@@ -1,23 +1,33 @@
 """
-    Model(model, distr, link, pastObs,
-          pastMean, X, external, zi)
-Structure to specify count data models with subtypes for more specific models.
-
-* `model`: "INARMA" or "INGARCH"
-* `distr`: "Poisson" or "Negative Binomial" (Vector for INARMA)
-* `link`: Vector of length two, "Linear" or "Log" (Vector for INARMA)
-* `pastObs`: Lags considered in autoregressive part
-* `pastMean`: Lags considered in MA/past conditional mean part
-* `X`: Matrix of regressors (row-wise)
-* `external`: Indicator(s) if regressors enter externally
-* `zi`: Indicator, zero inflation Y/N
-
-For details, see [Documentation](https://github.com/ManuelStapper/CountTimeSeries.jl/blob/master/CountTimeSeries_documentation.pdf)
+    CountModel
+Abstract type which summarizes all models in the CountTimeSeries.jl package.
 """
 abstract type CountModel end
+
+"""
+    INGARCH
+Abstract type which summarizes all models in the INGARCH framework. Subtype of CountModel.
+"""
 abstract type INGARCH<:CountModel end
+
+"""
+    INARMA
+Abstract type which summarizes all models in the INARMA framework. Subtype of CountModel.
+"""
 abstract type INARMA<:CountModel end
 
+
+"""
+    INGARCHModel
+Struct to specify an INGARCH model. It contains information on
+* Distribution
+* Link function
+* Past observations included in the conditional mean definition
+* Past mean included in the conditional mean definition
+* Regressor matrix X
+* external: Indicator which regressors enter the system externally
+* zi: Indicator. Is zero inflation modelled?
+"""
 mutable struct INGARCHModel<:INGARCH
     distr::String
     link::String
@@ -28,6 +38,16 @@ mutable struct INGARCHModel<:INGARCH
     zi::Bool
 end
 
+"""
+    INARCHModel
+Struct to specify an INARCH model. It contains information on
+* Distribution
+* Link function
+* Past observations included in the conditional mean definition
+* Regressor matrix X
+* external: Indicator which regressors enter the system externally
+* zi: Indicator. Is zero inflation modelled?
+"""
 mutable struct INARCHModel<:INGARCH
     distr::String
     link::String
@@ -37,6 +57,15 @@ mutable struct INARCHModel<:INGARCH
     zi::Bool
 end
 
+"""
+    IIDModel
+Struct to specify an IID model. It contains information on
+* Distribution
+* Link function
+* Regressor matrix X
+* external: Indicator which regressors enter the system externally
+* zi: Indicator. Is zero inflation modelled?
+"""
 mutable struct IIDModel<:INGARCH
     distr::String
     link::String
@@ -45,6 +74,17 @@ mutable struct IIDModel<:INGARCH
     zi::Bool
 end
 
+"""
+    INARMAModel
+Struct to specify an INARMA model. It contains information on
+* Distributions
+* Link functions
+* Past observations included
+* Past mean included
+* Regressor matrix X
+* external: Indicator which regressors enter the system externally
+* zi: Indicator. Is zero inflation modelled?
+"""
 mutable struct INARMAModel<:INARMA
     distr::Array{String, 1}
     link::Array{String, 1}
@@ -55,6 +95,16 @@ mutable struct INARMAModel<:INARMA
     zi::Bool
 end
 
+"""
+    INARModel
+Struct to specify an INAR model. It contains information on
+* Distributions
+* Link functions
+* Past observations included
+* Regressor matrix X
+* external: Indicator which regressors enter the system externally
+* zi: Indicator. Is zero inflation modelled?
+"""
 mutable struct INARModel<:INARMA
     distr::Array{String, 1}
     link::Array{String, 1}
@@ -64,6 +114,16 @@ mutable struct INARModel<:INARMA
     zi::Bool
 end
 
+"""
+    INMAModel
+Struct to specify an INMA model. It contains information on
+* Distributions
+* Link functions
+* Past mean included
+* Regressor matrix X
+* external: Indicator which regressors enter the system externally
+* zi: Indicator. Is zero inflation modelled?
+"""
 mutable struct INMAModel<:INARMA
     distr::Array{String, 1}
     link::Array{String, 1}

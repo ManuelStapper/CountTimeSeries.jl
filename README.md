@@ -6,4 +6,4 @@
 [![Coverage](https://coveralls.io/repos/github/ManuelStapper/CountTimeSeries.jl/badge.svg?branch=master)](https://coveralls.io/github/ManuelStapper/CountTimeSeries.jl?branch=master)
 
 TestText
-\\[a^2\mathcal{A}\\]
+``a^2\mathcal{A}``

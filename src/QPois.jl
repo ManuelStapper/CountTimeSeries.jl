@@ -72,13 +72,42 @@ function QPois(results::INGARCHresults)
     end
 
     # Rewrite results
-    out = INGARCHresults(results.y, results.θ, results.pars, results.λ, results.residuals,
-                         results.LL, results.LLs, results.nPar, results.nObs, results.se,
-                         results.CI, results.model, results.converged, results.MLEControl)
+    outpars = parameter(results.pars.β0,
+                        results.pars.α,
+                        results.pars.β,
+                        results.pars.η,
+                        [ϕest],
+                        results.pars.ω)
 
-    out.pars.ϕ = [ϕest]
-    out.model.distr = "NegativeBinomial"
-    out.θ = par2θ(out.pars, out.model)
+    if typeof(results.model) == INGARCHModel
+        outModel = INGARCHModel("NegativeBinomial",
+                     results.model.link,
+                     results.model.pastObs,
+                     results.model.pastMean,
+                     results.model.X,
+                     results.model.external,
+                     results.model.zi)
+    end
+    if typeof(results.model) == INARCHModel
+        outModel = INGARCHModel("NegativeBinomial",
+                     results.model.link,
+                     results.model.pastObs,
+                     results.model.X,
+                     results.model.external,
+                     results.model.zi)
+    end
+    if typeof(results.model) == IIDModel
+        outModel = INGARCHModel("NegativeBinomial",
+                     results.model.link,
+                     results.model.X,
+                     results.model.external,
+                     results.model.zi)
+    end
+    outθ = par2θ(outpars, outModel)
+
+    out = INGARCHresults(results.y, outθ, outpars, results.λ, results.residuals,
+                         results.LL, results.LLs, results.nPar, results.nObs, results.se,
+                         results.CI, outModel, results.converged, results.MLEControl)
 
     return out
 end

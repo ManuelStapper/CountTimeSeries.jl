@@ -1,9 +1,26 @@
 # CountTimeSeries
 
-[![Build Status](https://travis-ci.com/ManuelStapper/CountTimeSeries.jl.svg?branch=master)](https://travis-ci.com/ManuelStapper/CountTimeSeries.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/frnihr2qw4328rnf?svg=true)](https://ci.appveyor.com/project/ManuelStapper/counttimeseries-jl-xqtaf)
 [![Coverage](https://codecov.io/gh/ManuelStapper/CountTimeSeries.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ManuelStapper/CountTimeSeries.jl)
-[![Coverage](https://coveralls.io/repos/github/ManuelStapper/CountTimeSeries.jl/badge.svg?branch=master)](https://coveralls.io/github/ManuelStapper/CountTimeSeries.jl?branch=master)
 
-TestText
-``a^2\mathcal{A}``
+
+This package is developed to handle univariate count data time series. Up to now, it covers integer counterparts of ARMA and GARCH processes with broad generalizations. It enables the user to generate artificial data, estimate parameters by Maximum Likelihood, conduct inference on the estimates, assess model choice and carry out forecasts. A detailed documentation with theoretical background is provided [here](https://github.com/ManuelStapper/CountTimeSeries.jl/blob/master/CountTimeSeries_documentation.pdf).
+
+# Example
+
+A model, for example a simple INGARCH(1, 1) with Poisson distribution is defined first by
+```julia
+model = Model(pastObs = 1, pastMean = 1)
+```
+Then, a time series is simulated by
+```julia
+y = simulate(1000, model, [10, 0.5, 0.2])[1]
+```
+its parameters estimates
+```julia
+res = fit(y, model)
+```
+and finally a 10-step ahead prediction carried out
+```julia
+predict(res, 10)
+```

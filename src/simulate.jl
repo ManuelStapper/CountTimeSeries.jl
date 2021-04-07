@@ -705,23 +705,6 @@ function simulate(T::U where U<:Integer, model::INMAModel, θ::parameter;
     return Y[burnin + 1:end], R[burnin+1:end]
 end
 
-function simulate(T::U where U<:Integer, model::T where T<:CountModel, θ::parameter;
-    burnin::U where U<:Integer = 500 ,
-    pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
-
-    if !parametercheck(θ, model)
-        error("Parameters not valid.")
-    end
-
-    if model.model == "INGARCH"
-        newModel = convert(INGARCHModel, model)
-    elseif model.model == "INARMA"
-        newModel = convert(INARMAModel, model)
-    end
-    simulate(T, newModel, θ, burnin = burnin, pinfirst = pinfirst)
-end
-
-
 function simulate(T::U where U<:Integer, model::T where T<:CountModel, θ::Array{U, 1} where U<:AbstractFloat;
     burnin::U where U<:Integer = 500,
     pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))

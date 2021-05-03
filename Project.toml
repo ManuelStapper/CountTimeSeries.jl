@@ -18,7 +18,7 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 Calculus = "0.5.1"
-Distributions = "0.23.11, 0.24"
+Distributions = "0.23.11, 0.24, 0.25"
 Optim = "1.2.0"
 Plots = "1.6.4"
 Roots = "1.0.5"

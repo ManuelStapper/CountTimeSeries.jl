@@ -2,6 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/frnihr2qw4328rnf?svg=true)](https://ci.appveyor.com/project/ManuelStapper/counttimeseries-jl-xqtaf)
 [![Coverage](https://codecov.io/gh/ManuelStapper/CountTimeSeries.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ManuelStapper/CountTimeSeries.jl)
+[![DOI](https://zenodo.org/badge/349195207.svg)](https://zenodo.org/badge/latestdoi/349195207)
 
 
 This package is developed to handle univariate count data time series. Up to now, it covers integer counterparts of ARMA and GARCH processes with broad generalizations. It enables the user to generate artificial data, estimate parameters by Maximum Likelihood, conduct inference on the estimates, assess model choice and carry out forecasts. A detailed documentation with theoretical background is provided [here](https://github.com/ManuelStapper/CountTimeSeries.jl/blob/master/CountTimeSeries_documentation.pdf).

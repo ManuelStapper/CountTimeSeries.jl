@@ -17,12 +17,11 @@ poor initial values.
 # Function if MLEControl is given
 import StatsBase.fit
 
-function fit(y::Array{T, 1} where T<:Integer,
-    model::T where T<:INGARCH,
-    MLEControl::MLEControl;
-    printResults::Bool = true,
-    initiate::String = "first")
-
+function fit(y::Vector{Int64},
+             model::T,
+             MLEControl::MLEControl;
+             printResults::Bool = true,
+             initiate::String = "first")::Results where {T <: INGARCH}
     T = length(y)
 
     if typeof(model) == INGARCHModel
@@ -112,20 +111,19 @@ function fit(y::Array{T, 1} where T<:Integer,
     return res
 end
 
-function fit(y::Array{T, 1} where T<:Integer,
-    model::T where T<:INGARCH;
-    printResults::Bool = true,
-    initiate::String = "first")
-
+function fit(y::Vector{Int64},
+             model::T;
+             printResults::Bool = true,
+             initiate::String = "first")::Results where {T <: INGARCH}
     MLEControl = MLESettings(y, model)
 
     fit(y, model, MLEControl, printResults = printResults, initiate = initiate)
 end
 
-function fit(y::Array{T, 1} where T<:Integer,
-    model::T where T<:INARMA,
+function fit(y::Vector{Int64},
+    model::T,
     MLEControl::MLEControl;
-    printResults::Bool = true)
+    printResults::Bool = true)::Results where {T <: INARMA}
 
     T = length(y)
 
@@ -227,11 +225,10 @@ function fit(y::Array{T, 1} where T<:Integer,
     return res
 end
 
-function fit(y::Array{T, 1} where T<:Integer,
-    model::T where T<:INARMA;
-    printResults::Bool = true)
+function fit(y::Vector{Int64},
+    model::T;
+    printResults::Bool = true)::Results where {T <: INARMA}
 
     MLEControl = MLESettings(y, model)
-
     fit(y, model, MLEControl, printResults = printResults)
 end

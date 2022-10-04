@@ -20,10 +20,11 @@ generates multiple time series according to estiamtion results.
 The latter is used to compute forecast intervals and is the default for INARMA models.
 """
 function predict(results::INGARCHresults,
-    h::T where T<:Integer,
-    Xnew::Array{T, 2} where T<:AbstractFloat = zeros(0, 0))
+                 h::Int64,
+                 Xnew::Array{T, 2} = zeros(0, 0))  where {T <: Real}
 
     r = length(results.model.external)
+    Xnew = Float64.(Xnew)
 
     if ndims(Xnew) == 1
         if r > 1
@@ -127,7 +128,7 @@ function predict(results::INGARCHresults,
     Y = zeros(T + h)
     Y[1:T] = y
 
-    for t = (T+1):(T+h)
+    @inbounds for t = (T+1):(T+h)
         ν[t] = β0
         if p > 0
             if logl
@@ -162,11 +163,11 @@ function predict(results::INGARCHresults,
 end
 
 function predict(results::INGARCHresults,
-    h::T where T<:Integer,
-    nChain::T where T<:Integer,
-    Xnew::Array{T, 2} where T<:AbstractFloat = zeros(0, 0))
-
+                 h::Int64,
+                 nChain::Int64,
+                 Xnew::Array{T, 2} = zeros(0, 0)) where {T <: Real}
     r = length(results.model.external)
+    Xnew = Float64.(Xnew)
 
     if ndims(Xnew) == 1
         if r > 1
@@ -278,14 +279,14 @@ function predict(results::INGARCHresults,
         end
     end
 
-    for i = 1:nChain
+    @inbounds for i = 1:nChain
         λ[i, 1:M] = λOld[(end - M + 1):end]
         ν[i, 1:M] = νOld[(end - M + 1):end]
         Y[i, 1:M] = y[(end - M + 1):end]
     end
 
     @simd for i = 1:nChain
-        for t = (M+1):(M+h)
+        @inbounds for t = (M+1):(M+h)
             ν[i, t] = β0
             if p > 0
                 if logl
@@ -334,11 +335,12 @@ function predict(results::INGARCHresults,
 end
 
 function predict(results::INARMAresults,
-    h::T where T<:Integer,
-    nChain::T where T<:Integer,
-    Xnew::Array{T, 2} where T<:AbstractFloat = zeros(0, 0))
+                 h::Int64,
+                 nChain::Int64,
+                 Xnew::Array{T, 2} = zeros(0, 0)) where {T <: Real}
 
     r = length(results.model.external)
+    Xnew = Float64.(Xnew)
 
     if ndims(Xnew) == 1
         if length(results.model.external) > 1
@@ -442,7 +444,7 @@ function predict(results::INARMAresults,
     λ = fill(β0, M + h)
 
     # Initialization
-    for i = 1:M
+    @inbounds for i = 1:M
         if rE > 0
             for i = iE
                 μ[i] += (η[i]*results.model.X[i, T - M + i])
@@ -467,7 +469,7 @@ function predict(results::INARMAresults,
             dZ = Poisson(μ[i])
         end
 
-        for j = 1:nChain
+        @inbounds for j = 1:nChain
             while true
                 Rtemp = rand(dR)
                 Ztemp = rand(dZ)
@@ -481,7 +483,7 @@ function predict(results::INARMAresults,
         end
     end
 
-    for t = (M+1):(M+h)
+    @inbounds for t = (M+1):(M+h)
         if rE > 0
             for i = iE
                 μ[t] += η[i]*Xnew[i, t - M]
@@ -506,7 +508,7 @@ function predict(results::INARMAresults,
             dZ = Poisson(μ[t])
         end
 
-        for i = 1:nChain
+        @inbounds for i = 1:nChain
             R[i, t] = rand(dR)*(rand() >= ω)
             Z[i, t] = rand(dZ)
             Y[i, t] = R[i, t] + Z[i, t]
@@ -533,8 +535,7 @@ function predict(results::INARMAresults,
 end
 
 function predict(results::INARMAresults,
-    h::T where T<:Integer,
-    Xnew::Array{T, 2} where T<:AbstractFloat = zeros(0, 0))
-
+                 h::Int64,
+                 Xnew::Array{T, 2} = zeros(0, 0)) where {T <: Real}
     predict(results, h, 10000, Xnew)
 end

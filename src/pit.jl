@@ -16,7 +16,9 @@ pit(res, 10, 0.95)
 If the argument `level` is put in, a confidence regio is added to the PIT histogram.
 The height of all bins is inside that region if the PIT values follow a uniform distribution.
 """
-function pit(results::INGARCHresults; nbins::Int64 = 10, level::Float64 = 0.0)
+function pit(results::INGARCHresults;
+             nbins::Int64 = 10,
+             level::Float64 = 0.0)
     y = results.y
     T = length(y)
     λ = results.λ
@@ -89,7 +91,9 @@ function pit(results::INGARCHresults; nbins::Int64 = 10, level::Float64 = 0.0)
 end
 
 
-function pit(results::INARMAresults; nbins::T where T<:Integer = 10, level::T where T<:AbstractFloat = 0)
+function pit(results::INARMAresults;
+             nbins::Int64 = 10,
+             level::Float64 = 0.0)
     if typeof(results.model) != INARModel
         error("PIT histogram not supported for INARMA or INMA models.")
     end

@@ -23,7 +23,7 @@ parametercheck([10, 0.3], model)
 Parameters are admissible if they yield strictly positive conditional means and
 further fulfill stationarity properties.
 """
-function parametercheck(θ::parameter, model::INGARCHModel)
+function parametercheck(θ::parameter, model::INGARCHModel)::Bool
     logl = model.link == "Log"
     lin = !logl
     nb = model.distr == "NegativeBinomial"
@@ -73,9 +73,7 @@ function parametercheck(θ::parameter, model::INGARCHModel)
     return true
 end
 
-
-
-function parametercheck(θ::parameter, model::INARCHModel)
+function parametercheck(θ::parameter, model::INARCHModel)::Bool
     logl = model.link == "Log"
     lin = !logl
     nb = model.distr == "NegativeBinomial"
@@ -124,8 +122,7 @@ function parametercheck(θ::parameter, model::INARCHModel)
     return true
 end
 
-
-function parametercheck(θ::parameter, model::IIDModel)
+function parametercheck(θ::parameter, model::IIDModel)::Bool
     logl = model.link == "Log"
     lin = !logl
     nb = model.distr == "NegativeBinomial"
@@ -157,10 +154,7 @@ function parametercheck(θ::parameter, model::IIDModel)
     return true
 end
 
-
-
-
-function parametercheck(θ::parameter, model::INARMAModel)
+function parametercheck(θ::parameter, model::INARMAModel)::Bool
     logl1 = model.link[1] == "Log"
     lin1 = !logl1
 
@@ -228,7 +222,7 @@ function parametercheck(θ::parameter, model::INARMAModel)
     return true
 end
 
-function parametercheck(θ::parameter, model::INARModel)
+function parametercheck(θ::parameter, model::INARModel)::Bool
     logl1 = model.link[1] == "Log"
     lin1 = !logl1
 
@@ -288,7 +282,7 @@ function parametercheck(θ::parameter, model::INARModel)
     return true
 end
 
-function parametercheck(θ::parameter, model::INMAModel)
+function parametercheck(θ::parameter, model::INMAModel)::Bool
     logl1 = model.link[1] == "Log"
     lin1 = !logl1
 
@@ -344,6 +338,6 @@ function parametercheck(θ::parameter, model::INMAModel)
     return true
 end
 
-function parametercheck(θ::Array{T, 1} where T<: AbstractFloat, model::T where T<:CountModel)
+function parametercheck(θ::Array{T1, 1}, model::T2)::Bool where {T1 <: Real, T2 <: CountModel}
     parametercheck(θ2par(θ, model), model)
 end

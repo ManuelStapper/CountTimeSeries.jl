@@ -13,7 +13,9 @@
 
 # Core operations are put in functions for speedup
 
-function CoreIID(β0::Float64, logl::Bool, T::Int64)::Vector{Float64}
+function CoreIID(β0::Float64,
+                 logl::Bool,
+                 T::Int64)::Vector{Float64}
     if logl
         return fill(exp(β0), T)
     else
@@ -21,7 +23,11 @@ function CoreIID(β0::Float64, logl::Bool, T::Int64)::Vector{Float64}
     end
 end
 
-function CoreIID(β0::Float64, X::Matrix{Float64}, η::Vector{Float64}, logl::Bool, T::Int64)::Vector{Float64}
+function CoreIID(β0::Float64,
+                 X::Matrix{Float64},
+                 η::Vector{Float64},
+                 logl::Bool,
+                 T::Int64)::Vector{Float64}
     out = fill(β0, T)
     out += (η'X)[1, :]
     if logl
@@ -31,10 +37,10 @@ function CoreIID(β0::Float64, X::Matrix{Float64}, η::Vector{Float64}, logl::Bo
     end
 end
 
-function LinPred(y::Array{T,1} where T<:Integer,
-    model::IIDModel,
-    θ::parameter,
-    initiate::String = "first")::Vector{Float64}
+function LinPred(y::Array{Int64, 1},
+                 model::IIDModel,
+                 θ::parameter,
+                 initiate::String = "first")::Vector{Float64}
     if !(initiate in ["first", "intercept", "marginal"])
         println("Initiation not specified correctly - Changed to 'fist'")
         initiate = "first"
@@ -44,7 +50,6 @@ function LinPred(y::Array{T,1} where T<:Integer,
     r = length(model.external)
 
     logl = (model.link == "Log")
-
     β0 = Float64(θ.β0)
 
     if r > 0
@@ -56,16 +61,13 @@ function LinPred(y::Array{T,1} where T<:Integer,
     end
 end
 
-
-
 function CoreARCH(y::Vector{Int64},
-    β0::Float64,
-    α::Vector{Float64},
-    pastObs::Vector{Int64},
-    P::Int64,
-    logl::Bool,
-    T::Int64)::Vector{Float64}
-
+                  β0::Float64,
+                  α::Vector{Float64},
+                  pastObs::Vector{Int64},
+                  P::Int64,
+                  logl::Bool,
+                  T::Int64)::Vector{Float64}
     out = fill(β0, T)
     if logl
         y = @. log(y + 1)
@@ -81,15 +83,14 @@ function CoreARCH(y::Vector{Int64},
 end
 
 function CoreARCH(y::Vector{Int64},
-    β0::Float64,
-    α::Vector{Float64},
-    pastObs::Vector{Int64},
-    P::Int64,
-    η::Vector{Float64},
-    X::Matrix{Float64},
-    logl::Bool,
-    T::Int64)::Vector{Float64}
-
+                  β0::Float64,
+                  α::Vector{Float64},
+                  pastObs::Vector{Int64},
+                  P::Int64,
+                  η::Vector{Float64},
+                  X::Matrix{Float64},
+                  logl::Bool,
+                  T::Int64)::Vector{Float64}
     out = fill(β0, T)
     if logl
         y = @. log(y + 1)
@@ -106,11 +107,10 @@ function CoreARCH(y::Vector{Int64},
     end
 end
 
-function LinPred(y::Array{T,1} where T<: Integer,
-    model::INARCHModel,
-    θ::parameter,
-    initiate::String = "first")::Vector{Float64}
-
+function LinPred(y::Array{Int64, 1},
+                 model::INARCHModel,
+                 θ::parameter,
+                 initiate::String = "first")::Vector{Float64}
     if !(initiate in ["first", "intercept", "marginal"])
         println("Initiation not specified correctly - Changed to 'fist'")
         initiate = "first"
@@ -141,28 +141,26 @@ function LinPred(y::Array{T,1} where T<: Integer,
     end
 end
 
-
 # No regressors
 function CoreGARCH(y::Vector{Int64},
-    λinit::Float64,
-    β0::Float64,
-    α::Vector{Float64},
-    pastObs::Vector{Int64},
-    p::Int64,
-    β::Vector{Float64},
-    pastMean::Vector{Int64},
-    q::Int64,
-    M::Int64,
-    logl::Bool,
-    T::Int64)::Vector{Float64}
-
+                   λinit::Float64,
+                   β0::Float64,
+                   α::Vector{Float64},
+                   pastObs::Vector{Int64},
+                   p::Int64,
+                   β::Vector{Float64},
+                   pastMean::Vector{Int64},
+                   q::Int64,
+                   M::Int64,
+                   logl::Bool,
+                   T::Int64)::Vector{Float64}
     out = fill(β0, T)
     out[1:M] .= λinit
 
     if logl
-        y = @. log(y + 1)
+        y = log.(y .+ 1)
     end
-    for t = M+1:T
+    @inbounds for t = M+1:T
         for i = 1:p
             out[t] += α[i] * y[t-pastObs[i]]
         end
@@ -181,26 +179,25 @@ end
 
 # Only Internal regressors
 function CoreGARCH(y::Vector{Int64},
-    λinit::Float64,
-    β0::Float64,
-    α::Vector{Float64},
-    pastObs::Vector{Int64},
-    p::Int64,
-    β::Vector{Float64},
-    pastMean::Vector{Int64},
-    q::Int64,
-    M::Int64,
-    ηI::Vector{Float64},
-    rI::Int64,
-    XI::Matrix{Float64},
-    logl::Bool,
-    T::Int64)::Vector{Float64}
-
+                   λinit::Float64,
+                   β0::Float64,
+                   α::Vector{Float64},
+                   pastObs::Vector{Int64},
+                   p::Int64,
+                   β::Vector{Float64},
+                   pastMean::Vector{Int64},
+                   q::Int64,
+                   M::Int64,
+                   ηI::Vector{Float64},
+                   rI::Int64,
+                   XI::Matrix{Float64},
+                   logl::Bool,
+                   T::Int64)::Vector{Float64}
     out = fill(β0, T)
     out[1:M] .= λinit
 
     if logl
-        y = @. log(y + 1)
+        y = log.(y .+ 1)
     end
     @inbounds for t = M+1:T
         for i = 1:p
@@ -225,28 +222,27 @@ end
 
 # Both, internal and external regressors
 function CoreGARCH(y::Vector{Int64},
-    λinit::Float64,
-    β0::Float64,
-    α::Vector{Float64},
-    pastObs::Vector{Int64},
-    p::Int64,
-    β::Vector{Float64},
-    pastMean::Vector{Int64},
-    q::Int64,
-    M::Int64,
-    ηI::Vector{Float64},
-    rI::Int64,
-    XI::Matrix{Float64},
-    logl::Bool,
-    T::Int64,
-    ηE::Vector{Float64},
-    XE::Matrix{Float64})::Vector{Float64}
-
+                   λinit::Float64,
+                   β0::Float64,
+                   α::Vector{Float64},
+                   pastObs::Vector{Int64},
+                   p::Int64,
+                   β::Vector{Float64},
+                   pastMean::Vector{Int64},
+                   q::Int64,
+                   M::Int64,
+                   ηI::Vector{Float64},
+                   rI::Int64,
+                   XI::Matrix{Float64},
+                   logl::Bool,
+                   T::Int64,
+                   ηE::Vector{Float64},
+                   XE::Matrix{Float64})::Vector{Float64}
     out = fill(β0, T)
     out[1:M] .= λinit
 
     if logl
-        y = @. log(y + 1)
+        y = log.(y .+ 1)
     end
     @inbounds for t = M+1:T
         for i = 1:p
@@ -271,25 +267,24 @@ end
 
 # Only external regressors
 function CoreGARCH(y::Vector{Int64},
-    λinit::Float64,
-    β0::Float64,
-    α::Vector{Float64},
-    pastObs::Vector{Int64},
-    p::Int64,
-    β::Vector{Float64},
-    pastMean::Vector{Int64},
-    q::Int64,
-    M::Int64,
-    logl::Bool,
-    T::Int64,
-    ηE::Vector{Float64},
-    XE::Matrix{Float64})::Vector{Float64}
-
+                   λinit::Float64,
+                   β0::Float64,
+                   α::Vector{Float64},
+                   pastObs::Vector{Int64},
+                   p::Int64,
+                   β::Vector{Float64},
+                   pastMean::Vector{Int64},
+                   q::Int64,
+                   M::Int64,
+                   logl::Bool,
+                   T::Int64,
+                   ηE::Vector{Float64},
+                   XE::Matrix{Float64})::Vector{Float64}
     out = fill(β0, T)
     out[1:M] .= λinit
 
     if logl
-        y = @. log(y + 1)
+        y = log.(y .+ 1)
     end
     @inbounds for t = M+1:T
         for i = 1:p
@@ -308,18 +303,16 @@ function CoreGARCH(y::Vector{Int64},
     return out + (ηE'XE)[1, :]
 end
 
-function LinPred(y::Array{T,1} where T<: Integer,
-    model::INGARCHModel,
-    θ::parameter,
-    initiate::String = "first")::Vector{Float64}
-
+function LinPred(y::Array{Int64,1},
+                 model::INGARCHModel,
+                 θ::parameter,
+                 initiate::String = "first")::Vector{Float64}
     if !(initiate in ["first", "intercept", "marginal"])
         println("Initiation not specified correctly - Changed to 'fist'")
         initiate = "first"
     end
 
     T = length(y)
-
     p = length(model.pastObs)
     if p == 0
         P = 0

@@ -19,7 +19,8 @@ AIC(res1, 2) # res1: Results from INARCH(1) fit
 AIC(res2)    # res2: Results from INARCH(2) fit
 ```
 """
-function AIC(results::INGARCHresults, dropfirst::T where T<:Integer = -1)
+function AIC(results::INGARCHresults,
+             dropfirst::Int64 = -1)::Float64
     if dropfirst == -1
         LLmax = results.LL
     else
@@ -31,7 +32,8 @@ function AIC(results::INGARCHresults, dropfirst::T where T<:Integer = -1)
     -2*LLmax + 2*nPar
 end
 
-function AIC(results::INARMAresults, dropfirst::T where T<:Integer = -1)
+function AIC(results::INARMAresults,
+             dropfirst::Int64 = -1)::Float64
     if dropfirst == -1
         LLmax = results.LL
     else

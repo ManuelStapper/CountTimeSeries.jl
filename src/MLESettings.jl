@@ -19,24 +19,25 @@ MLESettings(y, model, ci = true, maxEval = 1e9)
 If the argument `init` is not given, valid initial values are chosen.
 See also [MLEControl](@ref).
 """
-function MLESettings(y::Array{T, 1} where T<:Integer,
-    model::INGARCHModel,
-    init::Array{T, 1} where T<:AbstractFloat = Array{Float64, 1}([]);
-    optimizer::String = "BFGS",
-    ci::Bool = false,
-    maxEval::T where T<:AbstractFloat = 1e10)
-
+function MLESettings(y::Vector{Int64},
+                     model::INGARCHModel,
+                     init::Vector{T1} = Vector{Float64}([]);
+                     optimizer::String = "BFGS",
+                     ci::Bool = false,
+                     maxEval::T2 = 1e10)::MLEControl where {T1, T2 <: Real}
     p = length(model.pastObs)
     q = length(model.pastMean)
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
+    maxEval = Int64(round(maxEval))
 
     nPar = 1 + p + q + r + nb + model.zi
+    init = Vector{Float64}(init)
 
     if (length(init) != nPar) & (length(init) > 0)
         println("Number of initial values does not match number of parameters.")
         println("Switched to default initial values.")
-        init = Array{Float64, 1}(undef, 0)
+        init = Vector{Float64}(undef, 0)
     end
 
     if length(init) == 0
@@ -50,10 +51,10 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
             temp = [collect(p:-1:1); collect(q:-1:1)]
             temp = temp./(2*sum(temp))
         else
-            temp = Array{Float64, 1}([])
+            temp = Vector{Float64}([])
         end
 
-        init = [β0init; temp; fill(0.05, r); fill(5.0, nb); ifelse(model.zi, 0.1, Array{Float64, 1}([]))]
+        init = [β0init; temp; fill(0.05, r); fill(5.0, nb); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -66,23 +67,25 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     MLEControl(init, optimizer, ci, Int64(round(abs(maxEval))))
 end
 
-function MLESettings(y::Array{T, 1} where T<:Integer,
-    model::INARCHModel,
-    init::Array{T, 1} where T<:AbstractFloat = Array{Float64, 1}([]);
-    optimizer::String = "BFGS",
-    ci::Bool = false,
-    maxEval::T where T<:AbstractFloat = 1e10)
+function MLESettings(y::Vector{Int64},
+                     model::INARCHModel,
+                     init::Vector{T1} = Vector{Float64}([]);
+                     optimizer::String = "BFGS",
+                     ci::Bool = false,
+                     maxEval::T2 = 1e10)::MLEControl where {T1, T2 <: Real}
 
     p = length(model.pastObs)
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
 
     nPar = 1 + p + r + nb + model.zi
+    init = Vector{Float64}(init)
+    maxEval = Int64(round(maxEval))
 
     if (length(init) != nPar) & (length(init) > 0)
         println("Number of initial values does not match number of parameters.")
         println("Switched to default initial values.")
-        init = Array{Float64, 1}(undef, 0)
+        init = Vector{Float64}(undef, 0)
     end
 
     if length(init) == 0
@@ -95,10 +98,10 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
             temp = collect(p:-1:1)
             temp = temp./(2*sum(temp))
         else
-            temp = Array{Float64, 1}([])
+            temp = Vector{Float64}([])
         end
 
-        init = [β0init; temp; fill(0.05, r); fill(5.0, nb); ifelse(model.zi, 0.1, Array{Float64, 1}([]))]
+        init = [β0init; temp; fill(0.05, r); fill(5.0, nb); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -111,22 +114,23 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     MLEControl(init, optimizer, ci, Int64(round(abs(maxEval))))
 end
 
-function MLESettings(y::Array{T, 1} where T<:Integer,
-    model::IIDModel,
-    init::Array{T, 1} where T<:AbstractFloat = Array{Float64, 1}([]);
-    optimizer::String = "BFGS",
-    ci::Bool = false,
-    maxEval::T where T<:AbstractFloat = 1e10)
-
+function MLESettings(y::Vector{Int64},
+                     model::IIDModel,
+                     init::Vector{T1} = Vector{Float64}([]);
+                     optimizer::String = "BFGS",
+                     ci::Bool = false,
+                     maxEval::T2 = 1e10)::MLEControl where {T1, T2 <: Real}
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
 
     nPar = 1 + r + nb + model.zi
+    init = Vector{Float64}(init)
+    maxEval = Int64(round(maxEval))
 
     if (length(init) != nPar) & (length(init) > 0)
         println("Number of initial values does not match number of parameters.")
         println("Switched to default initial values.")
-        init = Array{Float64, 1}(undef, 0)
+        init = Vector{Float64}(undef, 0)
     end
 
     if length(init) == 0
@@ -135,7 +139,7 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
             β0init = log(β0init)
         end
 
-        init = [β0init; fill(0.05, r); fill(5.0, nb); ifelse(model.zi, 0.1, Array{Float64, 1}([]))]
+        init = [β0init; fill(0.05, r); fill(5.0, nb); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -148,16 +152,17 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     MLEControl(init, optimizer, ci, Int64(round(abs(maxEval))))
 end
 
-function MLESettings(y::Array{T, 1} where T<:Integer,
-    model::INARMAModel,
-    init::Array{T, 1} where T<:AbstractFloat = Array{Float64, 1}([]);
-    optimizer::String = "BFGS",
-    ci::Bool = false,
-    maxEval::T where T<:AbstractFloat = 1e10)
+function MLESettings(y::Vector{Int64},
+                     model::INARMAModel,
+                     init::Vector{T1} = Vector{Float64}([]);
+                     optimizer::String = "BFGS",
+                     ci::Bool = false,
+                     maxEval::T2 = 1e10)::MLEControl where {T1, T2 <: Real}
 
     p = length(model.pastObs)
     q = length(model.pastMean)
     r = length(model.external)
+    maxEval = Int64(round(maxEval))
     nϕ = sum(model.distr .== "NegativeBinomial")
     if nϕ == 2
         if r == 0
@@ -170,11 +175,12 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     end
 
     nPar = 1 + p + q + r + nϕ + model.zi
+    init = Vector{Float64}(init)
 
     if (length(init) != nPar) & (length(init) > 0)
         println("Number of initial values does not match number of parameters.")
         println("Switched to default initial values.")
-        init = Array{Float64, 1}(undef, 0)
+        init = Vector{Float64}(undef, 0)
     end
 
     if length(init) == 0
@@ -188,10 +194,10 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
             temp = [collect(p:-1:1); collect(q:-1:1)]
             temp = temp./(2*sum(temp))
         else
-            temp = Array{Float64, 1}([])
+            temp = Vector{Float64}([])
         end
 
-        init = [β0init; temp; fill(0.05, r); fill(5.0, nϕ); ifelse(model.zi, 0.1, Array{Float64, 1}([]))]
+        init = [β0init; temp; fill(0.05, r); fill(5.0, nϕ); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -204,15 +210,16 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     MLEControl(init, optimizer, ci, Int64(round(abs(maxEval))))
 end
 
-function MLESettings(y::Array{T, 1} where T<:Integer,
-    model::INARModel,
-    init::Array{T, 1} where T<:AbstractFloat = Array{Float64, 1}([]);
-    optimizer::String = "BFGS",
-    ci::Bool = false,
-    maxEval::T where T<:AbstractFloat = 1e10)
+function MLESettings(y::Vector{Int64},
+                     model::INARModel,
+                     init::Vector{T1} = Vector{Float64}([]);
+                     optimizer::String = "BFGS",
+                     ci::Bool = false,
+                     maxEval::T2 = 1e10)::MLEControl where {T1, T2 <: Real}
 
     p = length(model.pastObs)
     r = length(model.external)
+    maxEval = Int64(round(maxEval))
     nϕ = sum(model.distr .== "NegativeBinomial")
     if nϕ == 2
         if r == 0
@@ -225,11 +232,12 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     end
 
     nPar = 1 + p + r + nϕ + model.zi
+    init = Vector{Float64}(init)
 
     if (length(init) != nPar) & (length(init) > 0)
         println("Number of initial values does not match number of parameters.")
         println("Switched to default initial values.")
-        init = Array{Float64, 1}(undef, 0)
+        init = Vector{Float64}(undef, 0)
     end
 
     if length(init) == 0
@@ -242,10 +250,10 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
             temp = collect(p:-1:1)
             temp = temp./(2*sum(temp))
         else
-            temp = Array{Float64, 1}([])
+            temp = Vector{Float64}([])
         end
 
-        init = [β0init; temp; fill(0.05, r); fill(5.0, nϕ); ifelse(model.zi, 0.1, Array{Float64, 1}([]))]
+        init = [β0init; temp; fill(0.05, r); fill(5.0, nϕ); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -258,15 +266,16 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     MLEControl(init, optimizer, ci, Int64(round(abs(maxEval))))
 end
 
-function MLESettings(y::Array{T, 1} where T<:Integer,
-    model::INMAModel,
-    init::Array{T, 1} where T<:AbstractFloat = Array{Float64, 1}([]);
-    optimizer::String = "BFGS",
-    ci::Bool = false,
-    maxEval::T where T<:AbstractFloat = 1e10)
+function MLESettings(y::Vector{Int64},
+                     model::INMAModel,
+                     init::Vector{T1} = Vector{Float64}([]);
+                     optimizer::String = "BFGS",
+                     ci::Bool = false,
+                     maxEval::T2 = 1e10)::MLEControl where {T1, T2 <: Real}
 
     q = length(model.pastMean)
     r = length(model.external)
+    maxEval = Int64(round(maxEval))
     nϕ = sum(model.distr .== "NegativeBinomial")
     if nϕ == 2
         if r == 0
@@ -280,11 +289,12 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
 
 
     nPar = 1 + q + r + nϕ + model.zi
+    init = Vector{Float64}(init)
 
     if (length(init) != nPar) & (length(init) > 0)
         println("Number of initial values does not match number of parameters.")
         println("Switched to default initial values.")
-        init = Array{Float64, 1}(undef, 0)
+        init = Vector{Float64}(undef, 0)
     end
 
     if length(init) == 0
@@ -297,10 +307,10 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
             temp = collect(q:-1:1)
             temp = temp./(2*sum(temp))
         else
-            temp = Array{Float64, 1}([])
+            temp = Vector{Float64}([])
         end
 
-        init = [β0init; temp; fill(0.05, r); fill(5.0, nϕ); ifelse(model.zi, 0.1, Array{Float64, 1}([]))]
+        init = [β0init; temp; fill(0.05, r); fill(5.0, nϕ); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -313,13 +323,13 @@ function MLESettings(y::Array{T, 1} where T<:Integer,
     MLEControl(init, optimizer, ci, Int64(round(abs(maxEval))))
 end
 
-function MLESettings(y::Array{T, 1} where T<:Integer,
-    model::T where T<:CountModel,
-    init::parameter;
-    optimizer::String = "BFGS",
-    ci::Bool = false,
-    maxEval::T where T<:AbstractFloat = 1e10)
-
+function MLESettings(y::Vector{Int64},
+                     model::T1,
+                     init::parameter;
+                     optimizer::String = "BFGS",
+                     ci::Bool = false,
+                     maxEval::T2 = 1e10)::MLEControl where {T1 <: CountModel, T2 <: Real}
     initNew = par2θ(init, model)
+    maxEval = Int64(round(maxEval))
     MLESettings(y, model, initNew, optimizer = optimizer, ci = ci, maxEval = maxEval)
 end

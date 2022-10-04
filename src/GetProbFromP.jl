@@ -10,7 +10,7 @@
 
 function GetProbFromP(P::Array{Float64, 2})::Vector{Float64}
     dims = size(P)[2]
-    
+
     if dims == 1
         return P[:, 1]
     end

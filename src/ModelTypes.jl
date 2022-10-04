@@ -31,9 +31,9 @@ Struct to specify an INGARCH model. It contains information on
 mutable struct INGARCHModel<:INGARCH
     distr::String
     link::String
-    pastObs::Array{T, 1} where T<:Integer
-    pastMean::Array{T, 1} where T<:Integer
-    X::Array{T, 2} where T<: AbstractFloat
+    pastObs::Vector{Int64}
+    pastMean::Vector{Int64}
+    X::Array{Float64, 2}
     external::Array{Bool, 1}
     zi::Bool
 end
@@ -51,8 +51,8 @@ Struct to specify an INARCH model. It contains information on
 mutable struct INARCHModel<:INGARCH
     distr::String
     link::String
-    pastObs::Array{T, 1} where T<:Integer
-    X::Array{T, 2} where T<: AbstractFloat
+    pastObs::Vector{Int64}
+    X::Array{Float64, 2}
     external::Array{Bool, 1}
     zi::Bool
 end
@@ -69,7 +69,7 @@ Struct to specify an IID model. It contains information on
 mutable struct IIDModel<:INGARCH
     distr::String
     link::String
-    X::Array{T, 2} where T<: AbstractFloat
+    X::Array{Float64, 2}
     external::Array{Bool, 1}
     zi::Bool
 end
@@ -88,9 +88,9 @@ Struct to specify an INARMA model. It contains information on
 mutable struct INARMAModel<:INARMA
     distr::Array{String, 1}
     link::Array{String, 1}
-    pastObs::Array{T, 1} where T<:Integer
-    pastMean::Array{T, 1} where T<:Integer
-    X::Array{T, 2} where T<: AbstractFloat
+    pastObs::Vector{Int64}
+    pastMean::Vector{Int64}
+    X::Array{Float64, 2}
     external::Array{Bool, 1}
     zi::Bool
 end
@@ -108,8 +108,8 @@ Struct to specify an INAR model. It contains information on
 mutable struct INARModel<:INARMA
     distr::Array{String, 1}
     link::Array{String, 1}
-    pastObs::Array{T, 1} where T<:Integer
-    X::Array{T, 2} where T<: AbstractFloat
+    pastObs::Vector{Int64}
+    X::Array{Float64, 2}
     external::Array{Bool, 1}
     zi::Bool
 end
@@ -127,8 +127,8 @@ Struct to specify an INMA model. It contains information on
 mutable struct INMAModel<:INARMA
     distr::Array{String, 1}
     link::Array{String, 1}
-    pastMean::Array{T, 1} where T<:Integer
-    X::Array{T, 2} where T<: AbstractFloat
+    pastMean::Vector{Int64}
+    X::Array{Float64, 2}
     external::Array{Bool, 1}
     zi::Bool
 end

@@ -9,7 +9,6 @@
 
 function convolution(p1::Vector{Float64},
                      p2::Vector{Float64})::Vector{Float64}
-    #
     M = length(p1)
     out = zeros(M)
     @inbounds for i = 0:M-1

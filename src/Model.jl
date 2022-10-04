@@ -29,16 +29,18 @@ For further details, see [Documentation](https://github.com/ManuelStapper/CountT
 function Model(;model = "INGARCH",
     distr = "Poisson",
     link = "Linear",
-    pastObs = Array{Int64, 1}([]),
-    pastMean = Array{Int64, 1}([]),
+    pastObs = Vector{Int64}([]),
+    pastMean = Vector{Int64}([]),
     X = Array{Float64, 2}(undef, 0, 0),
     external = Array{Bool, 1}([]),
     zi = false)
 
+    # Check model framework
     if !(model in ["INARMA", "INGARCH"])
         error("Invalid model type.")
     end
 
+    # Check distribution
     if typeof(distr) == String
         if !(distr in ["Poisson", "NegativeBinomial"])
             error("Invalid distribution.")
@@ -67,6 +69,7 @@ function Model(;model = "INGARCH",
         error("Invalid distribution")
     end
 
+    # Check link function
     if typeof(link) == String
         if !(link in ["Linear", "Log"])
             error("Invalid link.")
@@ -95,16 +98,17 @@ function Model(;model = "INGARCH",
         error("Invalid link")
     end
 
+    # Check pastObs and pastMean
     if typeof(pastObs) == UnitRange{Int64}
         pastObs = collect(pastObs)
     end
 
     if length(pastObs) == 0
-        pastObs = Array{Int64, 1}([])
+        pastObs = Vector{Int64}([])
     end
 
     if typeof(pastObs) <: Integer
-        pastObs = [pastObs]
+        pastObs = [Int64(pastObs)]
     end
 
     if typeof(pastObs) <: Matrix{T} where T<:Integer
@@ -117,13 +121,13 @@ function Model(;model = "INGARCH",
         end
     end
 
-    if !(typeof(pastObs) <: Array{T, 1} where T<:Integer)
+    if !(typeof(pastObs) <: Vector{Integer})
         error("Invalid specification of pastObs.")
     else
         if any(pastObs .<= 0)
             error("Entries of pastObs must be positive integers.")
         else
-            pastObs = sort(unique(pastObs))
+            pastObs = sort(Int64.(unique(pastObs)))
         end
     end
 
@@ -132,11 +136,11 @@ function Model(;model = "INGARCH",
     end
 
     if length(pastMean) == 0
-        pastMean = Array{Int64, 1}([])
+        pastMean = Vector{Int64}([])
     end
 
     if typeof(pastMean) <: Integer
-        pastMean = [pastMean]
+        pastMean = [Int64(pastMean)]
     end
 
     if typeof(pastMean) <: Matrix{T} where T<:Integer
@@ -149,16 +153,17 @@ function Model(;model = "INGARCH",
         end
     end
 
-    if typeof(pastMean) != Array{Int64, 1}
+    if typeof(pastMean) != Vector{Int64}
         error("Invalid specification of pastMean.")
     else
         if any(pastMean .<= 0)
             error("Entries of pastMean must be positive integers.")
         else
-            pastMean = sort(unique(pastMean))
+            pastMean = sort(Int64.(unique(pastMean)))
         end
     end
 
+    # Checking regressors and external flags
     if length(external) == 0
         external = Array{Bool, 1}([])
     end
@@ -183,11 +188,7 @@ function Model(;model = "INGARCH",
 
     r = length(external)
 
-    X = X .+ 0.0
-
-    if typeof(X) == UnitRange{Int64}
-        X = reshape(collect(X), (1, length(X)))
-    end
+    X = Float64.(X)
 
     if length(X) == 0
         X = zeros(0, 0)
@@ -195,7 +196,7 @@ function Model(;model = "INGARCH",
             error("Invalid specification of external and X.")
         end
     else
-        if typeof(X) <: Vector{T} where T<:AbstractFloat
+        if typeof(X) == Vector{Float64}
             if r > 1
                 error("Invalid specification of external and X.")
             end
@@ -206,7 +207,7 @@ function Model(;model = "INGARCH",
             X = reshape(X, (1, length(X)))
         end
 
-        if typeof(X) <: Matrix{T} where T<:AbstractFloat
+        if typeof(X) == Matrix{Float64}
             if r > 0
                 if size(X)[1] != r
                     error("Invalid dimensions in X.")
@@ -227,6 +228,7 @@ function Model(;model = "INGARCH",
         iE = findall(external)
         rE = length(iE)
 
+        # Some cheks for regressors
         if model == "INGARCH"
             if link[1] == "Linear"
                 if any(X .< 0)
@@ -259,7 +261,7 @@ function Model(;model = "INGARCH",
             distr[2] = "Poisson"
         else
             if rE == 0
-                distr[2] = "poisson"
+                distr[2] = "Poisson"
             end
         end
     end

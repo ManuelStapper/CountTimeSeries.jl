@@ -15,7 +15,9 @@ model = Model(pastObs = 1) # Specify INARCH(1)
 θ2par([10, 0.5], model)
 ```
 """
-function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INGARCHModel)
+function θ2par(θ::Vector{T}, model::INGARCHModel)::parameter where {T <: Real}
+    θ = Float64.(θ)
+
     p = length(model.pastObs)
     q = length(model.pastMean)
     r = length(model.external)
@@ -38,7 +40,7 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INGARCHModel)
     used += r
     ϕ = θ[used + 1:used + nb]
     if length(ϕ) == 0
-        ϕ = Array{Float64, 1}([])
+        ϕ = Vector{Float64}([])
     end
     if zi
         ω = θ[end]
@@ -50,7 +52,8 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INGARCHModel)
 end
 
 
-function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARCHModel)
+function θ2par(θ::Vector{T}, model::INARCHModel)::parameter where {T <: Real}
+    θ = Float64.(θ)
     p = length(model.pastObs)
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
@@ -70,7 +73,7 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARCHModel)
     used += r
     ϕ = θ[used + 1:used + nb]
     if length(ϕ) == 0
-        ϕ = Array{Float64, 1}([])
+        ϕ = Vector{Float64}([])
     end
     if zi
         ω = θ[end]
@@ -78,10 +81,11 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARCHModel)
         ω = 0.0
     end
 
-    parameter(β0, α, Array{Float64, 1}([]), η, ϕ, ω)
+    parameter(β0, α, Vector{Float64}([]), η, ϕ, ω)
 end
 
-function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::IIDModel)
+function θ2par(θ::Vector{T}, model::IIDModel)::parameter where {T <: Real}
+    θ = Float64.(θ)
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
     zi = model.zi
@@ -98,7 +102,7 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::IIDModel)
     used += r
     ϕ = θ[used + 1:used + nb]
     if length(ϕ) == 0
-        ϕ = Array{Float64, 1}([])
+        ϕ = Vector{Float64}([])
     end
     if zi
         ω = θ[end]
@@ -106,10 +110,11 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::IIDModel)
         ω = 0.0
     end
 
-    parameter(β0, Array{Float64, 1}([]), Array{Float64, 1}([]), η, ϕ, ω)
+    parameter(β0, Vector{Float64}([]), Vector{Float64}([]), η, ϕ, ω)
 end
 
-function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARMAModel)
+function θ2par(θ::Vector{T}, model::INARMAModel)::parameter where {T <: Real}
+    θ = Float64.(θ)
     p = length(model.pastObs)
     q = length(model.pastMean)
     r = length(model.external)
@@ -146,7 +151,7 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARMAModel)
         ϕ = repeat(ϕtemp, 2)
     end
     if length(ϕtemp) == 0
-        ϕ =  Array{Float64, 1}([])
+        ϕ =  Vector{Float64}([])
     end
     used += nb1 + nb2
     if zi
@@ -158,7 +163,8 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARMAModel)
     parameter(β0, α, β, η, ϕ, ω)
 end
 
-function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARModel)
+function θ2par(θ::Vector{T}, model::INARModel)::parameter where {T <: Real}
+    θ = Float64.(θ)
     p = length(model.pastObs)
     r = length(model.external)
     nb1 = model.distr[1] == "NegativeBinomial"
@@ -192,7 +198,7 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARModel)
         ϕ = repeat(ϕtemp, 2)
     end
     if length(ϕtemp) == 0
-        ϕ = Array{Float64, 1}([])
+        ϕ = Vector{Float64}([])
     end
     used += nb1 + nb2
     if zi
@@ -201,10 +207,11 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INARModel)
         ω = 0.0
     end
 
-    parameter(β0, α, Array{Float64, 1}([]), η, ϕ, ω)
+    parameter(β0, α, Vector{Float64}([]), η, ϕ, ω)
 end
 
-function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INMAModel)
+function θ2par(θ::Vector{T}, model::INMAModel)::parameter where {T <: Real}
+    θ = Float64.(θ)
     q = length(model.pastMean)
     r = length(model.external)
     nb1 = model.distr[1] == "NegativeBinomial"
@@ -238,7 +245,7 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INMAModel)
         ϕ = repeat(ϕtemp, 2)
     end
     if length(ϕtemp) == 0
-        ϕ = Array{Float64, 1}([])
+        ϕ = Vector{Float64}([])
     end
     used += nb1 + nb2
     if zi
@@ -247,9 +254,5 @@ function θ2par(θ::Array{T, 1} where T<: AbstractFloat, model::INMAModel)
         ω = 0.0
     end
 
-    parameter(β0, Array{Float64, 1}([]), β, η, ϕ, ω)
-end
-
-function θ2par(θ::Array{T, 1} where T<: Integer, model::T where T<:CountModel)
-    θ2par(convert(Vector{Float64}, θ), model)
+    parameter(β0, Vector{Float64}([]), β, η, ϕ, ω)
 end

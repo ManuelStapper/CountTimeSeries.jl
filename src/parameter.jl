@@ -14,10 +14,10 @@ Structure for Count Data models parameters.
 For details, see For details, see [Documentation](https://github.com/ManuelStapper/CountTimeSeries.jl/blob/master/CountTimeSeries_documentation.pdf)
 """
 mutable struct parameter
-    β0::T where T<:AbstractFloat
-    α::Array{T, 1} where T<:AbstractFloat
-    β::Array{T, 1} where T<:AbstractFloat
-    η::Array{T, 1} where T<:AbstractFloat
-    ϕ::Array{T, 1} where T<:AbstractFloat
-    ω::T where T<:AbstractFloat
+    β0::Float64
+    α::Vector{Float64}
+    β::Vector{Float64}
+    η::Vector{Float64}
+    ϕ::Vector{Float64}
+    ω::Float64
 end

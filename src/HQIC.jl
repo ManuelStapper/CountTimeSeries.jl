@@ -11,7 +11,8 @@ HQIC(res1, 2) # res1: Results from INARCH(1) fit
 HQIC(res2)    # res2: Results from INARCH(2) fit
 ```
 """
-function HQIC(results::INGARCHresults, dropfirst::T where T<:Integer = -1)
+function HQIC(results::INGARCHresults,
+              dropfirst::Int64 = -1)::Float64
     if dropfirst == -1
         LLmax = results.LL
         nObs = results.nObs
@@ -24,7 +25,8 @@ function HQIC(results::INGARCHresults, dropfirst::T where T<:Integer = -1)
     -2*LLmax + 2*nPar*log(log(nObs))
 end
 
-function HQIC(results::INARMAresults, dropfirst::T where T<:Integer = -1)
+function HQIC(results::INARMAresults,
+              dropfirst::Int64 = -1)::Float64
     if dropfirst == -1
         LLmax = results.LL
         nObs = results.nObs

@@ -1,5 +1,3 @@
-using Distributions, Optim, LinearAlgebra, Random, Plots
-
 # Define Thinning Operators
 import Base.∘
 
@@ -20,7 +18,7 @@ Random numbers are generated according to (binomial) thinning.
 
 `p∘d` computes ``\\sum_{i = 1}^X{Z_i}`` with ``Z_i\\sim\\text{Bin}(1, n)`` and ``X\\sim`` `d`
 """
-p::Float64 ∘ X::Integer = begin
+∘(p::Float64, X::Int64)::Int64 = begin
     if (0 <= p <= 1) & (X >= 0)
         rand(Binomial(X, p))
     else
@@ -34,10 +32,10 @@ p::Float64 ∘ X::Integer = begin
 end
 
 # Generic Thinning for any distribution as summands
-∘(d::DiscreteDistribution, X::Integer) = sum(rand(d, X))
+∘(d::DiscreteDistribution, X::Int64)::Int64 = sum(rand(d, X))
 
 # Binomial Thinning with distribution for sum limit
-p::Float64 ∘ d::DiscreteDistribution = begin
+∘(p::Float64, d::DiscreteDistribution)::Int64 = begin
     if (0 <= p <= 1)
         rand(Binomial(rand(d), p))
     else
@@ -45,10 +43,10 @@ p::Float64 ∘ d::DiscreteDistribution = begin
     end
 end
 # Generic thinning with distribution for sum limit
-dInner::Distribution ∘ dOuter::DiscreteDistribution = sum(rand(dInner, rand(dOuter)))
+∘(dInner::Distribution, dOuter::DiscreteDistribution) = sum(rand(dInner, rand(dOuter)))
 
 # CRN thinning (Binomial)
-function ∘(p::Float64, X::Integer, u::Float64)
+function ∘(p::Float64, X::Int64, u::Float64)::Int64
     if !(0 <= p <= 1)
         error("Invalid thinning probability.")
     end
@@ -65,7 +63,7 @@ function ∘(p::Float64, X::Integer, u::Float64)
 end
 
 # CRN thinning (generic)
-function ∘(d::Distribution, X::Integer, u::Vector{Float64})
+function ∘(d::Distribution, X::Int64, u::Vector{Float64})::Int64
     if !all(0 .<= u .<= 1)
         error("Invalid CRN.")
     end

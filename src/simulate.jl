@@ -17,10 +17,11 @@ model = CountModel(pastObs = 1)
 simulate(100, model, [10, 0.5])
 ```
 """
-function simulate(T::U where U<:Integer, model::T where T<:INGARCH, θ::parameter;
-    burnin::U where U<:Integer = 500 ,
-    pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0) )
-
+function simulate(T::Int64,
+                  model::T1,
+                  θ::parameter;
+                  burnin::Int64 = 500,
+                  printfirst::Array{T2, 1} = Vector{Float64}(undef, 0)) where {T1 <: INGARCH, T2 <: Real}
     if !parametercheck(θ, model)
         error("Parameters not valid.")
     end
@@ -168,10 +169,11 @@ function simulate(T::U where U<:Integer, model::T where T<:INGARCH, θ::paramete
     return y[burnin + 1:end], ν[burnin + 1:end], λ[burnin + 1:end], λzi[burnin+1:end]
 end
 
-
-function simulate(T::U where U<:Integer, model::INARCHModel, θ::parameter;
-    burnin::U where U<:Integer = 500 ,
-    pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0) )
+function simulate(T::Int64,
+                  model::INARCHModel,
+                  θ::parameter;
+                  burnin::Int64 = 500 ,
+                  pinfirst::Array{T1, 1} = Vector{Float64}(undef, 0)) where {T1 <: Real}
 
     if !parametercheck(θ, model)
         error("Parameters not valid.")
@@ -288,9 +290,11 @@ function simulate(T::U where U<:Integer, model::INARCHModel, θ::parameter;
     return y[burnin + 1:end], ν[burnin + 1:end], λ[burnin + 1:end], λzi[burnin+1:end]
 end
 
-function simulate(T::U where U<:Integer, model::IIDModel, θ::parameter;
-    burnin::U where U<:Integer = 500 ,
-    pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
+function simulate(T::Int64,
+                  model::IIDModel,
+                  θ::parameter;
+                  burnin::Int64 = 500,
+                  pinfirst::Array{T1, 1} = Vector{Float64}(undef, 0)) where {T1 <: Real}
 
     if !parametercheck(θ, model)
         error("Parameters not valid.")
@@ -338,10 +342,10 @@ function simulate(T::U where U<:Integer, model::IIDModel, θ::parameter;
     return y[burnin + 1:end], ν[burnin + 1:end], λ[burnin + 1:end], λzi[burnin + 1:end]
 end
 
-function simulate(T::U where U<:Integer, model::T where T<:INARMA, θ::parameter;
-    burnin::U where U<:Integer = 500 ,
-    pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
-
+function simulate(T::Int64,
+                  model::T1, θ::parameter;
+                  burnin::Int64 = 500,
+                  pinfirst::Array{T2, 1} = Vector{Float64}(undef, 0)) where {T1 <: INARMA, T2 <: Real}
     if !parametercheck(θ, model)
         error("Parameters not valid.")
     end
@@ -467,10 +471,11 @@ function simulate(T::U where U<:Integer, model::T where T<:INARMA, θ::parameter
     return Y[burnin + 1:end], R[burnin+1:end]
 end
 
-function simulate(T::U where U<:Integer, model::INARModel, θ::parameter;
-    burnin::U where U<:Integer = 500 ,
-    pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
-
+function simulate(T::Int64,
+                  model::INARModel,
+                  θ::parameter;
+                  burnin::Int64 = 500,
+                  pinfirst::Array{T1, 1} = Vector{Float64}(undef, 0)) where {T1 <: Real}
     if !parametercheck(θ, model)
         error("Parameters not valid.")
     end
@@ -585,10 +590,11 @@ function simulate(T::U where U<:Integer, model::INARModel, θ::parameter;
     return Y[burnin + 1:end], R[burnin+1:end]
 end
 
-function simulate(T::U where U<:Integer, model::INMAModel, θ::parameter;
-    burnin::U where U<:Integer = 500 ,
-    pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
-
+function simulate(T::Int64,
+                  model::INMAModel,
+                  θ::parameter;
+                  burnin::Int64 = 500,
+                  pinfirst::Array{T1, 1} = Vector{Float64}(undef, 0)) where {T1 <: Real}
     if !parametercheck(θ, model)
         error("Parameters not valid.")
     end
@@ -704,10 +710,11 @@ function simulate(T::U where U<:Integer, model::INMAModel, θ::parameter;
     return Y[burnin + 1:end], R[burnin+1:end]
 end
 
-function simulate(T::U where U<:Integer, model::T where T<:CountModel, θ::Array{U, 1} where U<:AbstractFloat;
-    burnin::U where U<:Integer = 500,
-    pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
-
+function simulate(T::Int64,
+                  model::T1,
+                  θ::Array{T2, 1};
+                  burnin::Int64 = 500,
+                  pinfirst::Array{T3, 1} = Vector{Float64}(undef, 0)) where {T1 <: CountModel, T2, T3 <: Real}
     if !parametercheck(θ, model)
         error("Parameters not valid.")
     end
@@ -715,9 +722,10 @@ function simulate(T::U where U<:Integer, model::T where T<:CountModel, θ::Array
     simulate(T, model, θ2par(θ, model), burnin = burnin, pinfirst = pinfirst)
 end
 
-function simulate(T::U where U<:Integer, model::T where T<:CountModel, θ::Array{U, 1} where U<:Integer;
-    burnin::U where U<:Integer = 500,
-    pinfirst::Array{U, 1} where U<:AbstractFloat = Array{Float64, 1}(undef, 0))
-
+function simulate(T::Int64,
+                  model::T1,
+                  θ::Array{T2, 1};
+                  burnin::Int64 = 500,
+                  pinfirst::Array{T3, 1} = Vector{Float64}(undef, 0)) where {T1 <: CountModel, T2, T3 <: Real}
     simulate(T, model, θ2par(θ, model), burnin = burnin, pinfirst = pinfirst)
 end

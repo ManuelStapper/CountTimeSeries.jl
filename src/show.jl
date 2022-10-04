@@ -1,6 +1,6 @@
 import Base.show
 
-function show(x::T where T<:CountModel)
+function show(x::T) where {T <: CountModel}
     println("")
     println("Distribution: "*"\t\t"*reduce(*, x.distr.*" "))
     println("Link: "*"\t\t\t"*reduce(*, x.link.*" "))
@@ -27,7 +27,7 @@ function show(x::T where T<:CountModel)
     println("Zero Inflation: "*"\t"*ifelse(true, "Y", "N"))
 end
 
-function show(x::T where T<:INGARCHModel)
+function show(x::T) where {T <: INGARCHModel}
     println("")
     println("Distribution: "*"\t\t"*x.distr)
     println("Link: "*"\t\t\t"*x.link)
@@ -53,7 +53,7 @@ function show(x::T where T<:INGARCHModel)
     println("Zero Inflation: "*"\t"*ifelse(true, "Y", "N"))
 end
 
-function show(x::T where T<:INARMA)
+function show(x::T) where {T <: INARMA}
     println("")
     println("Distribution: "*"\t\t"*x.distr[1]*" and "*x.distr[2])
     println("Link: "*"\t\t\t"*x.link[1]*" and "*x.link[2])

@@ -33,6 +33,6 @@ include("thinning.jl")
 export AIC, BIC, fit, HQIC, ll, MLEControl, MLESettings, Model, CountModel
 export INGARCH, INARMA, IIDModel, INARCHModel, INGARCHModel, INARMAModel
 export INARModel, INMAModel, par2θ, parameter, pit, predict, QPois
-export INGARCHresults, INARMAresults, simulate, θ2par, ∘
+export Results, INGARCHresults, INARMAresults, simulate, θ2par, ∘
 
 end

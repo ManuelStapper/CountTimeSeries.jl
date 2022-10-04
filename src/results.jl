@@ -14,6 +14,8 @@
 # model:        Model specification
 # converged:    Success of optimization routine
 
+abstract type Results end
+
 """
     INGARCHResults(y, θ, pars, λ, residuals,
           LL, LLs, nPar, nObs, se, CI,
@@ -35,19 +37,19 @@ Structure for estimation results.
 * `converged`: Indicator, convergence of optimization routine?
 * `MLEControl`: Estimation settings used
 """
-mutable struct INGARCHresults
-    y::Vector{T} where T<:Integer
-    θ::Vector{T} where T<: AbstractFloat
+mutable struct INGARCHresults{T <: INGARCH} <: Results
+    y::Vector{Int64}
+    θ::Vector{Float64}
     pars::parameter
-    λ::Vector{T} where T<:AbstractFloat
-    residuals::Vector{T} where T<:AbstractFloat
-    LL::T where T<: AbstractFloat
-    LLs::Array{T, 1} where T<:AbstractFloat
-    nPar::T where T<:Integer
-    nObs::T where T<: Integer
-    se::Array{T, 1} where T<:AbstractFloat
-    CI::Array{T, 2} where T<:AbstractFloat
-    model::T where T<:INGARCH
+    λ::Vector{Float64}
+    residuals::Vector{Float64}
+    LL::Float64
+    LLs::Vector{Float64}
+    nPar::Int64
+    nObs::Int64
+    se::Vector{Float64}
+    CI::Array{Float64, 2}
+    model::T
     converged::Bool
     MLEControl::MLEControl
 end
@@ -70,17 +72,17 @@ end
 * `converged`: Indicator, convergence of optimization routine?
 * `MLEControl`: Estimation settings used
 """
-mutable struct INARMAresults
-    y::Vector{T} where T<:Integer
-    θ::Vector{T} where T<: AbstractFloat
+mutable struct INARMAresults{T <: INARMA} <: Results
+    y::Vector{Int64}
+    θ::Vector{Float64}
     pars::parameter
-    LL::T where T<: AbstractFloat
-    LLs::Array{T, 1} where T<:AbstractFloat
-    nPar::T where T<:Integer
-    nObs::T where T<: Integer
-    se::Array{T, 1} where T<:AbstractFloat
-    CI::Array{T, 2} where T<:AbstractFloat
-    model::T where T<:INARMA
+    LL::Float64
+    LLs::Vector{Float64}
+    nPar::Int64
+    nObs::Int64
+    se::Vector{Float64}
+    CI::Array{Float64, 2}
+    model::T
     converged::Bool
     MLEControl::MLEControl
 end

@@ -21,7 +21,7 @@ function simulate(T::Int64,
                   model::T1,
                   θ::parameter;
                   burnin::Int64 = 500,
-                  printfirst::Array{T2, 1} = Vector{Float64}(undef, 0)) where {T1 <: INGARCH, T2 <: Real}
+                  pinfirst::Array{T2, 1} = Vector{Float64}(undef, 0)) where {T1 <: INGARCH, T2 <: Real}
     if !parametercheck(θ, model)
         error("Parameters not valid.")
     end
@@ -343,7 +343,8 @@ function simulate(T::Int64,
 end
 
 function simulate(T::Int64,
-                  model::T1, θ::parameter;
+                  model::T1,
+                  θ::parameter;
                   burnin::Int64 = 500,
                   pinfirst::Array{T2, 1} = Vector{Float64}(undef, 0)) where {T1 <: INARMA, T2 <: Real}
     if !parametercheck(θ, model)

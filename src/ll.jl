@@ -127,18 +127,18 @@ function ll(y::Vector{Int64},
     lls = zeros(T)
     if !nb
         d = Poisson.(λ[indrel])
-        if length(ω) == 1
+        if ω > 0
             lls[indrel] = log.(pdf.(d, y[indrel]).*(1 - ω) .+ (y[indrel].== 0).*ω)
-        elseif length(ω) == 0
+        else
             lls[indrel] = logpdf.(d, y[indrel])
         end
         LL = sum(lls)
     else
         ptemp = ϕ[1]./(ϕ[1] .+ λ[indrel])
         d = NegativeBinomial.(ϕ[1], ptemp)
-        if length(ω) == 1
+        if ω > 0
             lls[indrel] = log.(pdf.(d, y[indrel]).*(1 - ω) .+ (y[indrel].== 0).*ω)
-        elseif length(ω) == 0
+        else
             lls[indrel] = logpdf.(d, y[indrel])
         end
 
@@ -182,18 +182,18 @@ function ll(y::Vector{Int64},
 
     if !nb
         d = Poisson.(λ)
-        if length(ω) == 1
+        if ω > 0
             lls = log.(pdf.(d, y).*(1 - ω) .+ (y.== 0).*ω)
-        elseif length(ω) == 0
+        else
             lls = logpdf.(d, y)
         end
         LL = sum(lls)
     else
         ptemp = ϕ[1]./(ϕ[1] .+ λ)
         d = NegativeBinomial.(ϕ[1], ptemp)
-        if length(ω) == 1
+        if ω > 0
             lls = log.(pdf.(d, y).*(1 - ω) .+ (y.== 0).*ω)
-        elseif length(ω) == 0
+        else
             lls = logpdf.(d, y)
         end
 
@@ -271,7 +271,7 @@ function ll(y::Vector{Int64},
     λ = fill(β0, T)
 
     if rI > 0
-        @inbounds for i = 1:rI
+        for i = 1:rI
             λ .+= η[iI[i]].*X[iI[i], :]
         end
     end
@@ -281,7 +281,7 @@ function ll(y::Vector{Int64},
     end
 
     if rE > 0
-        @inbounds for i = 1:rE
+        for i = 1:rE
             μ .+= η[iE[i]].*X[iE[i], :]
         end
         if logl2
@@ -291,7 +291,7 @@ function ll(y::Vector{Int64},
 
     PR = zeros(ymax + 1, T)
     PZ = zeros(ymax + 1, T)
-    @inbounds for t = 1:T
+    for t = 1:T
         if nb1
             PR[:, t] = pdf.(NegativeBinomial(ϕ[1], ϕ[1]/(ϕ[1] + λ[t])), 0:ymax)
         else
@@ -299,8 +299,8 @@ function ll(y::Vector{Int64},
         end
 
         if zi
-            PR[2:ymax + 1, t] = PR[2:ymax + 1, t].*(1 .- ω./(1 .- PR[1, t]))
-            PR[1, t] += ω
+            PR[2:ymax + 1, t] = PR[2:ymax + 1, t].*(1 .- ω)
+            PR[1, t] = PR[1, t] * (1 - ω) + ω
         end
 
         if rE > 0
@@ -317,7 +317,7 @@ function ll(y::Vector{Int64},
     lls = zeros(T)
 
     if q == 0
-        @inbounds for t = M+1:T
+        for t = M+1:T
             lls[t] = log(dot(PR[1:y[t]+1], PZ[y[t]+1:-1:1]))
         end
         LL = sum(lls[M+1:end])
@@ -343,7 +343,7 @@ function ll(y::Vector{Int64},
         a[1:y[M] + 1, M] = PR[1:y[M] + 1, M]./sum(PR[1:y[M] + 1, M])
         lls[M] = sum(a[:, M])
         ϕmat[:, M] = a[:, M]./lls[M]
-        @inbounds for t = M+1:T
+        for t = M+1:T
             for k = 0:y[t]
                 temp = PARZ[1:y[t] - k + 1, t]
                 for l = 0:y[t-1]
@@ -369,16 +369,16 @@ function ll(y::Vector{Int64},
         B1 = zeros(ymax + 1, ymax + 1)
         B2 = zeros(ymax + 1, ymax + 1)
 
-        @inbounds for i = 0:ymax
+        for i = 0:ymax
             B1[:, i + 1] = pdf.(Binomial(i, β[1]), 0:ymax)
             B2[:, i + 1] = pdf.(Binomial(i, β[2]), 0:ymax)
         end
         B = zeros(ymax + 1, ymax + 1, ymax + 1)
-        @inbounds for i = 0:ymax, j = 0:ymax
+        for i = 0:ymax, j = 0:ymax
             B[i + 1, j + 1, :] = convolution(B1[i + 1, :], B2[j + 1, :])
         end
 
-        @inbounds for r1 = 0:y[M]
+        for r1 = 0:y[M]
             temp1 = convolution(B1[:, r1 + 1], PARZ[:, M+1])
             trunc1 = PR[r1 + 1, M]/sum(PR[1:y[M]+1, M])
             for r2 = 0:y[M-1]
@@ -391,7 +391,7 @@ function ll(y::Vector{Int64},
         w[M+1] = sum(b[M+1, :, :, :])
         b[M+1, :, :, :] = b[M+1, :, :, :]./w[M+1]
 
-        @inbounds for t = M+2:T
+        for t = M+2:T
             for r1 = 0:ymax
                 temp1 = convolution(B1[:, r1 + 1], PARZ[:, t])
 
@@ -424,7 +424,7 @@ function ll(y::Vector{Int64},
     return ll(y, model, θNew, initiate = initiate)
 end
 
-function ll(y::Vector{Float64},
+function ll(y::Vector{Int64},
             model::T1,
             θ::Array{T2, 1})::Tuple{Float64, Vector{Float64}} where {T1 <: INARMA, T2 <: Real}
     θNew = θ2par(θ, model)
@@ -436,6 +436,7 @@ end
 ### Speed up ###
 ################
 
+# General inner function: Hier rauslöschen
 function Pmat(λ::Vector{Float64},
               μ::Vector{Float64},
               ymax::Int64,
@@ -450,41 +451,33 @@ function Pmat(λ::Vector{Float64},
     PZ = zeros(ymax + 1, T)
 
     if nb1 & !zi
-        @inbounds for t = 1:T
+        for t = 1:T
             PR[:, t] = pdf.(NegativeBinomial(ϕ[1], ϕ[1]/(ϕ[1] + λ[t])), 0:ymax)
         end
     end
     if !nb1 & !zi
-        @inbounds for t = 1:T
+        for t = 1:T
             PR[:, t] = pdf.(Poisson(λ[t]), 0:ymax)
         end
     end
 
     if nb1 & zi
         PRtemp = zeros(T)
-        @inbounds for t = 1:T
+        for t = 1:T
             PRtemp = pdf.(NegativeBinomial(ϕ[1], ϕ[1]/(ϕ[1] + λ[t])), 0:ymax)
-            if ω + PRtemp[1] < 1
-                PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω./(1 .- PRtemp[1]))
-                PR[1, t] = PRtemp[1] + ω
-            else
-                PR[2:ymax + 1, t] .= 0.0
-                PR[1, t] = 1.0
-            end
+
+            PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω)
+            PR[1, t] = PRtemp[1] * (1 - ω) + ω
         end
     end
 
     if !nb1 & zi
         PRtemp = zeros(T)
-        @inbounds for t = 1:T
+        for t = 1:T
             PRtemp = pdf.(Poisson(λ[t]), 0:ymax)
-            if ω + PRtemp[1] < 1
-                PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω./(1 .- PRtemp[1]))
-                PR[1, t] = PRtemp[1] + ω
-            else
-                PR[2:ymax + 1, t] .= 0.0
-                PR[1, t] = 1.0
-            end
+
+            PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω)
+            PR[1, t] = PRtemp[1] * (1 - ω) + ω
         end
     end
 
@@ -515,7 +508,7 @@ function Q1funInner(y::Vector{Int64},
                     B::Matrix{Float64},
                     ϕmatOld::Vector{Float64})::Vector{Float64}
     QQ = zeros(ymax + 1, ymax + 1)
-    @inbounds for k = 0:y[t]
+    for k = 0:y[t]
         temp = PARZt[y[t] - k + 1:-1:1]
         QQ[k+1, 1:y[t-1]+1] = temp'B[1:y[t] - k + 1, 1:y[t-1]+1]
     end
@@ -534,7 +527,7 @@ function Q1fun(y::Vector{Int64},
     lls = zeros(T)
     B = zeros(ymax + 1, ymax + 1)
 
-    @inbounds for k = 0:ymax
+    for k = 0:ymax
         B[:, k + 1] = pdf.(Binomial(k, β[1]), 0:ymax)
     end
 
@@ -542,7 +535,7 @@ function Q1fun(y::Vector{Int64},
     lls[M] = sum(a[:, M])
     ϕmatOld = a[:, M]./lls[M]
 
-    @inbounds for t = M+1:T
+    for t = M+1:T
         u = Q1funInner(y, t, ymax, PARZ[:, t], PR[:, t], B, ϕmatOld)
         lls[t] = sum(u)
         ϕmatOld = u./lls[t]
@@ -559,7 +552,7 @@ function createB(ymax::Int64,
     B1 = zeros(ymax + 1, ymax + 1)
     B2 = zeros(ymax + 1, ymax + 1)
 
-    @inbounds for i = 0:ymax
+    for i = 0:ymax
         B1[:, i + 1] = pdf.(Binomial(i, β[1]), 0:ymax)
         B2[:, i + 1] = pdf.(Binomial(i, β[2]), 0:ymax)
     end
@@ -600,7 +593,7 @@ function Q2funInner(y::Vector{Int64},
     bOld = zeros(ymax + 1, ymax + 1, ymax + 1)
     w = zeros(T)
 
-    @inbounds for r1 = 0:y[M]
+    for r1 = 0:y[M]
         temp1 = convolution(B1[:, r1 + 1], PARZ[:, M+1])
         trunc1 = PR[r1 + 1, M]/sum(PR[1:y[M]+1, M])
         for r2 = 0:y[M-1]
@@ -614,7 +607,7 @@ function Q2funInner(y::Vector{Int64},
     bOld = bOld./w[M+1]
     bOldSum = sum(bOld[1:y[M-1] + 1, :, :], dims = 1)[1, :, :]
 
-    @inbounds for t = M+2:T
+    for t = M+2:T
         PARZt = PARZ[:, t]
         PRt = PR[:, t]
         w[t], bOldSum = Q2funDeeper(t, y, ymax, PARZt, PRt[1:y[t] + 1], B1, B2, bOldSum)
@@ -730,7 +723,7 @@ function ll(y::Vector{Int64},
     # Below only for INAR Process, rather irrelevant
     if q == 0
         PY = zeros(p, ymax + 1, ymax + 1)
-        @inbounds for i = 1:p
+        for i = 1:p
             for j = sort(unique(y))
                 PY[i, j + 1, 1:j + 1] = pdf.(Binomial.(j, α[i]), 0:j)
             end
@@ -738,7 +731,7 @@ function ll(y::Vector{Int64},
 
         PAR = zeros(ymax + 1, P + 1)
 
-        @inbounds for t = M+1:T
+        for t = M+1:T
             for i = 1:P
                 PAR[:, i] = PY[i, y[t-i] + 1, :]
             end
@@ -755,7 +748,7 @@ function ll(y::Vector{Int64},
     # Compute P(Σ α_i∘Y_{t-i} + Z_t = k) first --> pARZ
     PAR = zeros(ymax + 1, P + 1)
     PARZ = zeros(ymax + 1, T)
-    @inbounds for t = M+1:T
+    for t = M+1:T
         for i = 1:P
             PAR[:, i] = pdf.(Binomial(y[t - i], α[i]), 0:ymax)
         end
@@ -789,7 +782,7 @@ function CoreINAR(y::Vector{Int64},
     #
     lls = zeros(T)
     PAR = zeros(ymax + 1, P + 1)
-    @inbounds for t = M+1:T
+    for t = M+1:T
         out = 0.0
         for i = 1:P
             PAR[:, i] = PY[i, y[t-i] + 1, :]
@@ -811,7 +804,7 @@ function CreatePY(y::Vector{Int64},
                   α::Vector{Float64})::Array{Float64, 3}
     PY = zeros(p, ymax + 1, ymax + 1)
     allVals = sort(unique(y))
-    @inbounds for i = 1:p
+    for i = 1:p
         for j = allVals
             PY[i, j + 1, 1:j + 1] = pdf.(Binomial.(j, α[i]), 0:j)
         end

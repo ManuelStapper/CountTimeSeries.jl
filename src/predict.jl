@@ -21,7 +21,7 @@ The latter is used to compute forecast intervals and is the default for INARMA m
 """
 function predict(results::INGARCHresults,
                  h::Int64,
-                 Xnew::Array{T, 2} = zeros(0, 0))  where {T <: Real}
+                 Xnew::Array{T1, 2} = zeros(0, 0))  where {T1 <: Real}
 
     r = length(results.model.external)
     Xnew = Float64.(Xnew)
@@ -165,7 +165,7 @@ end
 function predict(results::INGARCHresults,
                  h::Int64,
                  nChain::Int64,
-                 Xnew::Array{T, 2} = zeros(0, 0)) where {T <: Real}
+                 Xnew::Array{T1, 2} = zeros(0, 0)) where {T1 <: Real}
     r = length(results.model.external)
     Xnew = Float64.(Xnew)
 
@@ -337,7 +337,7 @@ end
 function predict(results::INARMAresults,
                  h::Int64,
                  nChain::Int64,
-                 Xnew::Array{T, 2} = zeros(0, 0)) where {T <: Real}
+                 Xnew::Array{T1, 2} = zeros(0, 0)) where {T1 <: Real}
 
     r = length(results.model.external)
     Xnew = Float64.(Xnew)
@@ -536,6 +536,6 @@ end
 
 function predict(results::INARMAresults,
                  h::Int64,
-                 Xnew::Array{T, 2} = zeros(0, 0)) where {T <: Real}
+                 Xnew::Array{T1, 2} = zeros(0, 0)) where {T1 <: Real}
     predict(results, h, 10000, Xnew)
 end

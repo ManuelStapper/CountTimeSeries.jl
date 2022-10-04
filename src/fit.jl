@@ -18,10 +18,10 @@ poor initial values.
 import StatsBase.fit
 
 function fit(y::Vector{Int64},
-             model::T,
+             model::T1,
              MLEControl::MLEControl;
              printResults::Bool = true,
-             initiate::String = "first")::Results where {T <: INGARCH}
+             initiate::String = "first")::Results where {T1 <: INGARCH}
     T = length(y)
 
     if typeof(model) == INGARCHModel
@@ -121,9 +121,9 @@ function fit(y::Vector{Int64},
 end
 
 function fit(y::Vector{Int64},
-    model::T,
+    model::T1,
     MLEControl::MLEControl;
-    printResults::Bool = true)::Results where {T <: INARMA}
+    printResults::Bool = true)::Results where {T1 <: INARMA}
 
     T = length(y)
 
@@ -226,8 +226,8 @@ function fit(y::Vector{Int64},
 end
 
 function fit(y::Vector{Int64},
-    model::T;
-    printResults::Bool = true)::Results where {T <: INARMA}
+    model::T1;
+    printResults::Bool = true)::Results where {T1 <: INARMA}
 
     MLEControl = MLESettings(y, model)
     fit(y, model, MLEControl, printResults = printResults)

@@ -121,7 +121,7 @@ function Model(;model = "INGARCH",
         end
     end
 
-    if !(typeof(pastObs) <: Vector{Integer})
+    if !(eltype(pastObs) <: Integer)
         error("Invalid specification of pastObs.")
     else
         if any(pastObs .<= 0)

@@ -104,9 +104,10 @@ function QPois(results::INGARCHresults)::INGARCHresults
                      results.model.zi)
     end
     outθ = par2θ(outpars, outModel)
+    LLout, LLsout = ll(results.y, outModel, outθ)
 
     out = INGARCHresults(results.y, outθ, outpars, results.λ, results.residuals,
-                         results.LL, results.LLs, results.nPar, results.nObs, results.se,
+                         LLout, LLsout, results.nPar + 1, results.nObs, results.se,
                          results.CI, outModel, results.converged, results.MLEControl)
 
     return out

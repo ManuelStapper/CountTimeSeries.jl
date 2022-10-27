@@ -97,7 +97,7 @@ function QPois(results::INGARCHresults)::INGARCHresults
                      results.model.zi)
     end
     if typeof(results.model) == IIDModel
-        outModel = INGARCHModel("NegativeBinomial",
+        outModel = IIDModel("NegativeBinomial",
                      results.model.link,
                      results.model.X,
                      results.model.external,

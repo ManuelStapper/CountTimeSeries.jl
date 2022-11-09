@@ -11,6 +11,7 @@
 # nObs:         Number of Observations
 # se:           Standard errors
 # CI:           Confidence intervals (normal approximation)
+# Σ:            Covariance matrix of estimator
 # model:        Model specification
 # converged:    Success of optimization routine
 
@@ -18,7 +19,7 @@ abstract type Results end
 
 """
     INGARCHResults(y, θ, pars, λ, residuals,
-          LL, LLs, nPar, nObs, se, CI,
+          LL, LLs, nPar, nObs, se, CI, Σ,
           model, converged, MLEControl)
 Structure for estimation results.
 
@@ -33,6 +34,7 @@ Structure for estimation results.
 * `nObs`: Number of observations
 * `se`: Standard errors
 * `CI`: Confidence intervals
+* `Σ`: Covariance matrix of estimator
 * `model`: Model specification
 * `converged`: Indicator, convergence of optimization routine?
 * `MLEControl`: Estimation settings used
@@ -49,6 +51,7 @@ mutable struct INGARCHresults{T <: INGARCH} <: Results
     nObs::Int64
     se::Vector{Float64}
     CI::Array{Float64, 2}
+    Σ::Matrix{Float64}
     model::T
     converged::Bool
     MLEControl::MLEControl
@@ -56,7 +59,7 @@ end
 
 """
     INARMAResults(y, θ, pars,
-      LL, LLs, nPar, nObs, se, CI,
+      LL, LLs, nPar, nObs, se, CI, Σ,
       model, converged, MLEControl)
 
 * `y`: Time series
@@ -68,6 +71,7 @@ end
 * `nObs`: Number of observations
 * `se`: Standard errors
 * `CI`: Confidence intervals
+* `Σ`: Covariance matrix of estimator
 * `model`: Model specification
 * `converged`: Indicator, convergence of optimization routine?
 * `MLEControl`: Estimation settings used
@@ -82,6 +86,7 @@ mutable struct INARMAresults{T <: INARMA} <: Results
     nObs::Int64
     se::Vector{Float64}
     CI::Array{Float64, 2}
+    Σ::Matrix{Float64}
     model::T
     converged::Bool
     MLEControl::MLEControl

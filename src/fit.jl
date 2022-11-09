@@ -95,14 +95,17 @@ function fit(y::Vector{Int64},
 
     if MLEControl.ci & !ciProb
         H = Calculus.hessian(vars -> ll(y, model, vars, initiate = initiate)[1], estsVec)
-        se = sqrt.(-diag(inv(H)))
+        Σ = -inv(H)
+        se = sqrt.(diag(Σ))
         quan = quantile(Normal(), 0.975)
         for i = 1:nPar
             CI[:, i] = estsVec[i] .+ [-1, 1].*se[i].*quan
         end
+    else
+        Σ = zeros(nPar, nPar)
     end
 
-    res = INGARCHresults(y, estsVec, ests, λ, resi, LLmax, LLs, nPar, nObs, se, CI, model, cvg, MLEControl)
+    res = INGARCHresults(y, estsVec, ests, λ, resi, LLmax, LLs, nPar, nObs, se, CI, Σ, model, cvg, MLEControl)
 
     if printResults
         show(res)
@@ -209,14 +212,17 @@ function fit(y::Vector{Int64},
 
     if MLEControl.ci & !ciProb
         H = Calculus.hessian(vars -> ll(y, model, vars)[1], estsVec)
-        se = sqrt.(-diag(inv(H)))
+        Σ = -inv(H)
+        se = sqrt.(diag(Σ))
         quan = quantile(Normal(), 0.975)
         for i = 1:nPar
             CI[:, i] = estsVec[i] .+ [-1, 1].*se[i].*quan
         end
+    else
+        Σ = zeros(nPar, nPar)
     end
 
-    res = INARMAresults(y, estsVec, ests, LLmax, LLs, nPar, nObs, se, CI, model, cvg, MLEControl)
+    res = INARMAresults(y, estsVec, ests, LLmax, LLs, nPar, nObs, se, CI, Σ, model, cvg, MLEControl)
 
     if printResults
         show(res)

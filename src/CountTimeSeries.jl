@@ -19,6 +19,7 @@ include("ll.jl")
 include("fit.jl")
 include("MLESettings.jl")
 include("Model.jl")
+include("moments.jl")
 include("par2theta.jl")
 include("parametercheck.jl")
 include("pit.jl")
@@ -34,5 +35,6 @@ export AIC, BIC, fit, HQIC, ll, MLEControl, MLESettings, Model, CountModel
 export INGARCH, INARMA, IIDModel, INARCHModel, INGARCHModel, INARMAModel
 export INARModel, INMAModel, par2θ, parameter, pit, predict, QPois
 export Results, INGARCHresults, INARMAresults, simulate, θ2par, ∘
+export mean, var, acvf, acf
 
 end

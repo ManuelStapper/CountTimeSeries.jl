@@ -24,7 +24,7 @@ function show(x::T) where {T <: CountModel}
     if length(x.external) > 0
         println("External: "*"\t\t"*reduce(*, ["N", "Y"][x.external .+ 1].*" "))
     end
-    println("Zero Inflation: "*"\t"*ifelse(true, "Y", "N"))
+    println("Zero Inflation: "*"\t"*ifelse(x.zi, "Y", "N"))
 end
 
 function show(x::T) where {T <: INGARCHModel}
@@ -50,7 +50,7 @@ function show(x::T) where {T <: INGARCHModel}
     if length(x.external) > 0
         println("External: "*"\t\t"*reduce(*, ["N", "Y"][x.external .+ 1].*" "))
     end
-    println("Zero Inflation: "*"\t"*ifelse(true, "Y", "N"))
+    println("Zero Inflation: "*"\t"*ifelse(x.zi, "Y", "N"))
 end
 
 function show(x::T) where {T <: INARMA}
@@ -75,7 +75,7 @@ function show(x::T) where {T <: INARMA}
     if length(x.external) > 0
         println("External: "*"\t\t"*reduce(*, ["N", "Y"][x.external .+ 1].*" "))
     end
-    println("Zero Inflation: "*"\t"*ifelse(true, "Y", "N"))
+    println("Zero Inflation: "*"\t"*ifelse(x.zi, "Y", "N"))
 end
 
 function show(x::parameter)

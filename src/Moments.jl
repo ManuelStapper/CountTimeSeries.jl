@@ -7,8 +7,7 @@
 ##### INGARCH #####
 ###################
 
-import Statistics.mean, Distributions.mean
-import Statistics.var, Distributions.var
+import Distributions.mean, Distributions.var
 
 """
     mean(model, θ, ofλ = false)

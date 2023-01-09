@@ -78,7 +78,7 @@ function pit(results::INGARCHresults;
     p = plot([0, 1], [1, 1], label = "", color = "red", linewidth = 2)
 
     if (level > 0) & (level < 1)
-        cival = quantile(Normal(), 1 - (1 - level)/(2*nbins)).*sqrt(T/nbins*(1 - 1/nbins))/(T/nbins)
+        cival = sqrt((nbins - 1)/T)*quantile(Normal(), (1 + level^(1/nbins))/2)
         plot!([0, 1], fill(maximum([1 - cival, 0]), 2), color = "red", label = "", linestyle = :dash)
         plot!([0, 1], fill(1 + cival, 2), color = "red", label = "", linestyle = :dash)
     end
@@ -91,9 +91,9 @@ function pit(results::INGARCHresults;
 end
 
 
-function pit(results::INARMAresults;
+function pit(results::T;
              nbins::Int64 = 10,
-             level::Float64 = 0.0)
+             level::Float64 = 0.0) where {T <: INARMA}
     if typeof(results.model) != INARModel
         error("PIT histogram not supported for INARMA or INMA models.")
     end
@@ -216,7 +216,7 @@ function pit(results::INARMAresults;
     p = plot([0, 1], [1, 1], label = "", color = "red", linewidth = 2)
 
     if (level > 0) & (level < 1)
-        cival = quantile(Normal(), 1 - (1 - level)/(2*nbins)).*sqrt(T/nbins*(1 - 1/nbins))/(T/nbins)
+        cival = sqrt((nbins - 1)/T)*quantile(Normal(), (1 + level^(1/nbins))/2)
         plot!([0, 1], fill(maximum([0, 1 - cival]), 2), color = "red", label = "", linestyle = :dash)
         plot!([0, 1], fill(1 + cival, 2), color = "red", label = "", linestyle = :dash)
     end

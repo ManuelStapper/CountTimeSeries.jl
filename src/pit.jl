@@ -91,9 +91,9 @@ function pit(results::INGARCHresults;
 end
 
 
-function pit(results::T;
+function pit(results::T1;
              nbins::Int64 = 10,
-             level::Float64 = 0.0) where {T <: INARMA}
+             level::Float64 = 0.0) where {T1 <: INARMA}
     if typeof(results.model) != INARModel
         error("PIT histogram not supported for INARMA or INMA models.")
     end

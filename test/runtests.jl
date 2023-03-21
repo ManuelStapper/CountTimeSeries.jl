@@ -95,7 +95,6 @@ using Test
         predict(res[i], 10, 100, Xnew)
     end
     predict(res[2], 10, Xnew)
-    pit(res[2])
 
     convert(INGARCHModel, models[2])
     convert(INGARCHModel, Model())

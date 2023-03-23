@@ -1,7 +1,7 @@
 name = "CountTimeSeries"
 uuid = "f648fdee-df8a-4cb4-ac79-58ced742ae0a"
 authors = ["Manuel Stapper"]
-version = "0.1.4"
+version = "0.1.5"
 
 [deps]
 Calculus = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"

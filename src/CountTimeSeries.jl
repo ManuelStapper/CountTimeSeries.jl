@@ -1,6 +1,6 @@
 module CountTimeSeries
 
-using Optim, Distributions, LinearAlgebra, Plots, Calculus, Roots, Random
+using Optim, Distributions, LinearAlgebra, Calculus, Roots, Random
 using Test, StatsBase, Distributed
 
 include("ModelTypes.jl")

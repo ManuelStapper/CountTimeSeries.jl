@@ -75,17 +75,17 @@ function pit(results::INGARCHresults;
     end
 
     heights = diff(vals)./T.*nbins
-    p = plot([0, 1], [1, 1], label = "", color = "red", linewidth = 2)
+    # p = plot([0, 1], [1, 1], label = "", color = "red", linewidth = 2)
 
     if (level > 0) & (level < 1)
         cival = sqrt((nbins - 1)/T)*quantile(Normal(), (1 + level^(1/nbins))/2)
-        plot!([0, 1], fill(maximum([1 - cival, 0]), 2), color = "red", label = "", linestyle = :dash)
-        plot!([0, 1], fill(1 + cival, 2), color = "red", label = "", linestyle = :dash)
+        # plot!([0, 1], fill(maximum([1 - cival, 0]), 2), color = "red", label = "", linestyle = :dash)
+        # plot!([0, 1], fill(1 + cival, 2), color = "red", label = "", linestyle = :dash)
     end
 
-    bar!(mid, heights, bar_width = 1/nbins, alpha = 0.8, label = "", color = RGB(0, 105/255, 131/255))
-    title!("Non-Randomized PIT Histogram")
-    display(p)
+    # bar!(mid, heights, bar_width = 1/nbins, alpha = 0.8, label = "", color = RGB(0, 105/255, 131/255))
+    # title!("Non-Randomized PIT Histogram")
+    # display(p)
 
     return mid, heights
 end
@@ -213,17 +213,17 @@ function pit(results::T1;
     end
 
     heights = diff(vals)./T.*nbins
-    p = plot([0, 1], [1, 1], label = "", color = "red", linewidth = 2)
+    # p = plot([0, 1], [1, 1], label = "", color = "red", linewidth = 2)
 
     if (level > 0) & (level < 1)
         cival = sqrt((nbins - 1)/T)*quantile(Normal(), (1 + level^(1/nbins))/2)
-        plot!([0, 1], fill(maximum([0, 1 - cival]), 2), color = "red", label = "", linestyle = :dash)
-        plot!([0, 1], fill(1 + cival, 2), color = "red", label = "", linestyle = :dash)
+        # plot!([0, 1], fill(maximum([0, 1 - cival]), 2), color = "red", label = "", linestyle = :dash)
+        # plot!([0, 1], fill(1 + cival, 2), color = "red", label = "", linestyle = :dash)
     end
 
-    bar!(mid, heights, bar_width = 1/nbins, alpha = 0.8, label = "", color = RGB(0, 105/255, 131/255))
-    title!("Non-Randomized PIT Histogram")
-    display(p)
+    # bar!(mid, heights, bar_width = 1/nbins, alpha = 0.8, label = "", color = RGB(0, 105/255, 131/255))
+    # title!("Non-Randomized PIT Histogram")
+    # display(p)
 
     return mid, heights
 end

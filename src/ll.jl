@@ -67,6 +67,9 @@ function ll(y::Vector{Int64},
         LL = sum(lls)
     else
         ptemp = @. ϕ[1]/(ϕ[1] + λ[indrel])
+        if any(ptemp .<= 0) | any(ptemp .> 1)
+            return (-Inf, fill(-Inf, T))
+        end
         d = NegativeBinomial.(ϕ[1], ptemp)
         if ω > 0
             lls[indrel] = log.(pdf.(d, y[indrel]).*(1 - ω) .+ (y[indrel].== 0).*ω)
@@ -135,6 +138,9 @@ function ll(y::Vector{Int64},
         LL = sum(lls)
     else
         ptemp = ϕ[1]./(ϕ[1] .+ λ[indrel])
+        if any(ptemp .<= 0) | any(ptemp .> 1)
+            return (-Inf, fill(-Inf, T))
+        end
         d = NegativeBinomial.(ϕ[1], ptemp)
         if ω > 0
             lls[indrel] = log.(pdf.(d, y[indrel]).*(1 - ω) .+ (y[indrel].== 0).*ω)
@@ -190,6 +196,9 @@ function ll(y::Vector{Int64},
         LL = sum(lls)
     else
         ptemp = ϕ[1]./(ϕ[1] .+ λ)
+        if any(ptemp .<= 0) | any(ptemp .> 1)
+            return (-Inf, fill(-Inf, T))
+        end
         d = NegativeBinomial.(ϕ[1], ptemp)
         if ω > 0
             lls = log.(pdf.(d, y).*(1 - ω) .+ (y.== 0).*ω)
@@ -293,7 +302,11 @@ function ll(y::Vector{Int64},
     PZ = zeros(ymax + 1, T)
     for t = 1:T
         if nb1
-            PR[:, t] = pdf.(NegativeBinomial(ϕ[1], ϕ[1]/(ϕ[1] + λ[t])), 0:ymax)
+            ptemp = ϕ[1]/(ϕ[1] + λ[t])
+            if (ptemp <= 0) | (ptemp > 1)
+                return (-Inf, fill(-Inf, T))
+            end
+            PR[:, t] = pdf.(NegativeBinomial(ϕ[1], ptemp), 0:ymax)
         else
             PR[:, t] = pdf.(Poisson(λ[t]), 0:ymax)
         end
@@ -305,7 +318,11 @@ function ll(y::Vector{Int64},
 
         if rE > 0
             if nb2
-                PZ[:, t] = pdf.(NegativeBinomial(ϕ[2], ϕ[2]/(ϕ[2] + μ[t])), 0:ymax)
+                ptemp = ϕ[2]/(ϕ[2] + μ[t])
+                if (ptemp <= 0) | (ptemp > 1)
+                    return (-Inf, fill(-Inf, T))
+                end
+                PZ[:, t] = pdf.(NegativeBinomial(ϕ[2], ptemp), 0:ymax)
             else
                 PZ[:, t] = pdf.(Poisson(μ[t]), 0:ymax)
             end

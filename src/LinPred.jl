@@ -72,8 +72,8 @@ function CoreARCH(y::Vector{Int64},
     if logl
         y = @. log(y + 1)
     end
-    @inbounds for i = pastObs
-        out[P+1:end] .+= α[i] .* y[P+1-i:end-i]
+    @inbounds for i = 1:length(pastObs)
+        out[P+1:end] .+= α[i] .* y[P+1-pastObs[i]:end-pastObs[i]]
     end
     if logl
         return exp.(out)
@@ -95,8 +95,8 @@ function CoreARCH(y::Vector{Int64},
     if logl
         y = @. log(y + 1)
     end
-    @inbounds for i = pastObs
-        out[P+1:end] .+= α[i] .* y[P+1-i:end-i]
+    @inbounds for i = length(pastObs)
+        out[P+1:end] .+= α[i] .* y[P+1-pastObs[i]:end-pastObs[i]]
     end
     out += (η'*X)[1, :]
 

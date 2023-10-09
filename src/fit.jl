@@ -125,11 +125,12 @@ function fit(y::Vector{Int64},
     MLEControl::MLEControl;
     printResults::Bool=true,
     initiate::String="first",
-    restr::Pair{String,T2}= "a" => 1)::Results where {T1<:INGARCH,T2<:Real}
+    restr::Pair{String, T2} = "a" => 1)::Results where {T1<:INGARCH,T2<:Real}
     if restr[1] == "a"
-        return fit(y, model, MLEControl, printresults = printResults, initiate = initiate)
+        return fit(y, model, MLEControl, printResults = printResults, initiate = initiate)
     else
-        return fit(y, model, MLEControl, printresults=printResults, initiate=initiate, restr = [restr])
+        println("Here")
+        return fit(y, model, MLEControl, printResults=printResults, initiate=initiate, restr = [restr])
     end
 end
 
@@ -149,9 +150,9 @@ function fit(y::Vector{Int64},
     initiate::String="first",
     restr::Pair{String,T2}="a" => 1)::Results where {T1<:INGARCH,T2<:Real}
     if restr[1] == "a"
-        return fit(y, model, printresults=printResults, initiate=initiate)
+        return fit(y, model,printResults=printResults, initiate=initiate)
     else
-        return fit(y, model, printresults=printResults, initiate=initiate, restr=[restr])
+        return fit(y, model,printResults=printResults, initiate=initiate, restr=[restr])
     end
 end
 
@@ -272,9 +273,9 @@ function fit(y::Vector{Int64},
     printResults::Bool=true,
     restr::Pair{String,T2}="a" => 1)::Results where {T1<:INARMA,T2<:Real}
     if restr[1] == "a"
-        return fit(y, model, MLEControl, printresults=printResults)
+        return fit(y, model, MLEControl,printResults=printResults)
     else
-        return fit(y, model, MLEControl, printresults=printResults, restr=[restr])
+        return fit(y, model, MLEControl,printResults=printResults, restr=[restr])
     end
 end
 
@@ -292,9 +293,9 @@ function fit(y::Vector{Int64},
     printResults::Bool=true,
     restr::Pair{String,T2}="a" => 1)::Results where {T1<:INARMA,T2<:Real}
     if restr[1] == "a"
-        return fit(y, model, printresults=printResults)
+        return fit(y, model,printResults=printResults)
     else
-        return fit(y, model, printresults=printResults, restr=[restr])
+        return fit(y, model,printResults=printResults, restr=[restr])
     end
 end
 

@@ -165,3 +165,93 @@ function show(x::INARMAresults)
         println(name[i], "\t", pr1[i], "\t", pr2[i], "\t", pr3[i], "\t(", pr4[i], ", ", pr5[i], ")", stars[i])
     end
 end
+
+# For restricted estimation
+function show(x::INGARCHresults, restr::Vector{Pair{String, T}}) where {T <: Real}
+    if length(restr) == 0
+        show(x)
+    else
+        par = θ2par(x.θ, x.model, restr)
+        restr2 = Vector{Pair{String,Float64}}(undef, length(restr))
+        for i = 1:length(restr)
+            restr2[i] = Pair(restr[i][1], Inf)
+        end
+        temp = par2θ(changePar(par, restr2), x.model)
+        ind = findall(isfinite.(temp))
+
+        tStat = x.θ ./ x.se
+        pVals = cdf.(Normal(), -abs.(tStat)) .* 2
+        p1 = ifelse.(pVals .< 0.05, "*", "")
+        p2 = ifelse.(pVals .< 0.01, "*", "")
+        p3 = ifelse.(pVals .< 0.001, "*", "")
+        stars = string.(p1, p2, p3)
+
+        r = length(x.model.external)
+        nb = x.model.distr == "NegativeBinomial"
+        if typeof(x.model) == INGARCHModel
+            name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
+        elseif typeof(x.model) == INARCHModel
+            name = ["β0"; string.("α", x.model.pastObs); string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
+        else
+            name = ["β0"; string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
+        end
+        name = name[ind]
+
+        pr1 = round.(x.θ, digits=4)
+        pr2 = round.(x.se, digits=4)
+        pr3 = round.(pVals, digits=4)
+        pr4 = round.(x.CI[1, :], digits=4)
+        pr5 = round.(x.CI[2, :], digits=4)
+        println("")
+        println("Results: Estimates, Standard Errors, p-values, Conf. Intervals")
+        for i = 1:x.nPar
+            println(name[i], "\t", pr1[i], "\t", pr2[i], "\t", pr3[i], "\t(", pr4[i], ", ", pr5[i], ")", stars[i])
+        end
+    end
+end
+
+function show(x::INARMAresults, restr::Vector{Pair{String, T}}) where {T <: Real}
+    if length(restr) == 0
+        show(x)
+    else
+        par = θ2par(x.θ, x.model, restr)
+        restr2 = Vector{Pair{String,Float64}}(undef, length(restr))
+        for i = 1:length(restr)
+            restr2[i] = Pair(restr[i][1], Inf)
+        end
+        temp = par2θ(changePar(par, restr2), x.model)
+        ind = findall(isfinite.(temp))
+
+        tStat = x.θ ./ x.se
+        pVals = cdf.(Normal(), -abs.(tStat)) .* 2
+        p1 = ifelse.(pVals .< 0.05, "*", "")
+        p2 = ifelse.(pVals .< 0.01, "*", "")
+        p3 = ifelse.(pVals .< 0.001, "*", "")
+        stars = string.(p1, p2, p3)
+
+        r = length(x.model.external)
+        nb1 = x.model.distr[1] == "NegativeBinomial"
+        nb2 = x.model.distr[2] == "NegativeBinomial"
+
+        if typeof(x.model) == INARMAModel
+            name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+        elseif typeof(x.model) == INARModel
+            name = ["β0"; string.("α", x.model.pastObs); string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+        elseif typeof(x.model) == INMAModel
+            name = ["β0"; string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+        else
+            name = ["β0"; string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+        end
+
+        pr1 = round.(x.θ, digits=4)
+        pr2 = round.(x.se, digits=4)
+        pr3 = round.(pVals, digits=4)
+        pr4 = round.(x.CI[1, :], digits=4)
+        pr5 = round.(x.CI[2, :], digits=4)
+        println("")
+        println("Results: Estimates, Standard Errors, p-values, Conf. Intervals")
+        for i = 1:x.nPar
+            println(name[i], "\t", pr1[i], "\t", pr2[i], "\t", pr3[i], "\t(", pr4[i], ", ", pr5[i], ")", stars[i])
+        end
+    end
+end

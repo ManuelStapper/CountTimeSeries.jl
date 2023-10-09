@@ -949,3 +949,21 @@ function ll(y::Vector{Int64},
 
     return LL, lls
 end
+
+import CountTimeSeries.ll
+function ll(y::Vector{Int64},
+            model::T1,
+            θ::Vector{Float64},
+            restr::Vector{Pair{String,T2}};
+            initiate = "first")::Tuple{Float64,Vector{Float64}} where {T1<:INGARCH,T2<:Real}
+    par = θ2par(θ, model, restr)
+    return ll(y, model, par, initiate = initiate)
+end
+
+function ll(y::Vector{Int64},
+    model::T1,
+    θ::Vector{Float64},
+    restr::Vector{Pair{String,T2}})::Tuple{Float64,Vector{Float64}} where {T1<:INARMA,T2<:Real}
+    par = θ2par(θ, model, restr)
+    return ll(y, model, par)
+end

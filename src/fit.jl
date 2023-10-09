@@ -114,7 +114,7 @@ function fit(y::Vector{Int64},
     res = INGARCHresults(y, estsVec, ests, λ, resi, LLmax, LLs, nPar, nObs, se, CI, Σ, model, cvg, MLEControl)
 
     if printResults
-        show(res)
+        show(res, restr)
     end
 
     return res
@@ -236,7 +236,7 @@ function fit(y::Vector{Int64},
     res = INARMAresults(y, estsVec, ests, LLmax, LLs, nPar, nObs, se, CI, Σ, model, cvg, MLEControl)
 
     if printResults
-        show(res)
+        show(res, restr)
     end
 
     return res

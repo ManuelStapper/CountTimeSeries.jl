@@ -16,7 +16,6 @@ poor initial values.
 
 # Function if MLEControl is given
 import StatsBase.fit
-
 # New functions here for restricted estimation
 # Should include the case of no restrictions, old functions in comments below
 function fit(y::Vector{Int64},
@@ -121,20 +120,6 @@ function fit(y::Vector{Int64},
 end
 
 function fit(y::Vector{Int64},
-    model::T1,
-    MLEControl::MLEControl;
-    printResults::Bool=true,
-    initiate::String="first",
-    restr::Pair{String, T2} = "a" => 1)::Results where {T1<:INGARCH,T2<:Real}
-    if restr[1] == "a"
-        return fit(y, model, MLEControl, printResults = printResults, initiate = initiate)
-    else
-        println("Here")
-        return fit(y, model, MLEControl, printResults=printResults, initiate=initiate, restr = [restr])
-    end
-end
-
-function fit(y::Vector{Int64},
     model::T1;
     printResults::Bool=true,
     initiate::String="first",
@@ -142,18 +127,6 @@ function fit(y::Vector{Int64},
     MLEControl = MLESettings(y, model)
 
     fit(y, model, MLEControl, printResults=printResults, initiate=initiate, restr = restr)
-end
-
-function fit(y::Vector{Int64},
-    model::T1,
-    printResults::Bool=true,
-    initiate::String="first",
-    restr::Pair{String,T2}="a" => 1)::Results where {T1<:INGARCH,T2<:Real}
-    if restr[1] == "a"
-        return fit(y, model,printResults=printResults, initiate=initiate)
-    else
-        return fit(y, model,printResults=printResults, initiate=initiate, restr=[restr])
-    end
 end
 
 function fit(y::Vector{Int64},
@@ -268,35 +241,12 @@ function fit(y::Vector{Int64},
 end
 
 function fit(y::Vector{Int64},
-    model::T1,
-    MLEControl::MLEControl,
-    printResults::Bool=true,
-    restr::Pair{String,T2}="a" => 1)::Results where {T1<:INARMA,T2<:Real}
-    if restr[1] == "a"
-        return fit(y, model, MLEControl,printResults=printResults)
-    else
-        return fit(y, model, MLEControl,printResults=printResults, restr=[restr])
-    end
-end
-
-function fit(y::Vector{Int64},
     model::T1;
     printResults::Bool=true,
     restr::Vector{Pair{String, T2}} = Vector{Pair{String, Float64}}(undef, 0))::Results where {T1<:INARMA, T2 <: Real}
 
     MLEControl = MLESettings(y, model)
     fit(y, model, MLEControl, printResults=printResults, restr = restr)
-end
-
-function fit(y::Vector{Int64},
-    model::T1,
-    printResults::Bool=true,
-    restr::Pair{String,T2}="a" => 1)::Results where {T1<:INARMA,T2<:Real}
-    if restr[1] == "a"
-        return fit(y, model,printResults=printResults)
-    else
-        return fit(y, model,printResults=printResults, restr=[restr])
-    end
 end
 
 ##### Old code below this line #####

@@ -100,6 +100,13 @@ function fit(y::Vector{Int64},
 
     if MLEControl.ci & !ciProb
         H = Calculus.hessian(vars -> ll(y, model, vars, restr, initiate=initiate)[1], estsVec)
+    end
+    if any(isnan.(H)) | any(.!isfinite(H))
+        ciProb = true
+        println("No confidence intervals computed due to Inf/NaN in Hessian.")
+    end
+
+    if MLEControl.ci & !ciProb
         Σ = -inv(H)
         se = sqrt.(diag(Σ))
         quan = quantile(Normal(), 0.975)
@@ -220,7 +227,14 @@ function fit(y::Vector{Int64},
     end
 
     if MLEControl.ci & !ciProb
-        H = Calculus.hessian(vars -> ll(y, model, vars, restr)[1], estsVec)
+        H = Calculus.hessian(vars -> ll(y, model, vars, restr, initiate=initiate)[1], estsVec)
+    end
+    if any(isnan.(H)) | any(.!isfinite(H))
+        ciProb = true
+        println("No confidence intervals computed due to Inf/NaN in Hessian.")
+    end
+
+    if MLEControl.ci & !ciProb
         Σ = -inv(H)
         se = sqrt.(diag(Σ))
         quan = quantile(Normal(), 0.975)

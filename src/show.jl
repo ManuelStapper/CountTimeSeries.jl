@@ -167,6 +167,7 @@ function show(x::INARMAresults)
 end
 
 # For restricted estimation
+import Base.show
 function show(x::INGARCHresults, restr::Vector{Pair{String, T}}) where {T <: Real}
     if length(restr) == 0
         show(x)
@@ -195,6 +196,8 @@ function show(x::INGARCHresults, restr::Vector{Pair{String, T}}) where {T <: Rea
         else
             name = ["β0"; string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
         end
+
+        nameR = name[findall(.!isfinite.(temp))]
         name = name[ind]
 
         pr1 = round.(x.θ, digits=4)
@@ -206,6 +209,11 @@ function show(x::INGARCHresults, restr::Vector{Pair{String, T}}) where {T <: Rea
         println("Results: Estimates, Standard Errors, p-values, Conf. Intervals")
         for i = 1:x.nPar
             println(name[i], "\t", pr1[i], "\t", pr2[i], "\t", pr3[i], "\t(", pr4[i], ", ", pr5[i], ")", stars[i])
+        end
+        println("Restricted parameters:")
+        for i = 1:length(nameR)
+            val = string(round(restr[i][2], digits=4))
+            println(nameR[i], "\t", val, "\t", 0.0000, "\t", 0.0000, "\t(", val, ", ", val, ")")
         end
     end
 end
@@ -242,6 +250,8 @@ function show(x::INARMAresults, restr::Vector{Pair{String, T}}) where {T <: Real
         else
             name = ["β0"; string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
         end
+        nameR = name[findall(.!isfinite.(temp))]
+        name = name[ind]
 
         pr1 = round.(x.θ, digits=4)
         pr2 = round.(x.se, digits=4)
@@ -252,6 +262,11 @@ function show(x::INARMAresults, restr::Vector{Pair{String, T}}) where {T <: Real
         println("Results: Estimates, Standard Errors, p-values, Conf. Intervals")
         for i = 1:x.nPar
             println(name[i], "\t", pr1[i], "\t", pr2[i], "\t", pr3[i], "\t(", pr4[i], ", ", pr5[i], ")", stars[i])
+        end
+        println("Restricted parameters:")
+        for i = 1:length(nameR)
+            val = string(round(restr[i][2], digits=4))
+            println(nameR[i], "\t", val, "\t", 0.0000, "\t", 0.0000, "\t(", val, ", ", val, ")")
         end
     end
 end

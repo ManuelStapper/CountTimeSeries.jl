@@ -123,7 +123,7 @@ function changePar(par::parameter, restr::Vector{Pair{String,T1}}, model::T2) wh
     return out
 end
 
-function par2θNew(θ::parameter,
+function par2θ(θ::parameter,
                model::T1,
                restr::Vector{Pair{String, T2}})::Vector{Float64} where {T1<:CountModel, T2 <: Real}
     if length(restr) > 0

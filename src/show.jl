@@ -177,7 +177,7 @@ function show(x::INGARCHresults, restr::Vector{Pair{String, T}}) where {T <: Rea
         for i = 1:length(restr)
             restr2[i] = Pair(restr[i][1], Inf)
         end
-        temp = par2θ(changePar(par, restr2), x.model)
+        temp = par2θ(changePar(par, restr2, x.model), x.model)
         ind = findall(isfinite.(temp))
 
         tStat = x.θ ./ x.se
@@ -227,7 +227,7 @@ function show(x::INARMAresults, restr::Vector{Pair{String, T}}) where {T <: Real
         for i = 1:length(restr)
             restr2[i] = Pair(restr[i][1], Inf)
         end
-        temp = par2θ(changePar(par, restr2), x.model)
+        temp = par2θ(changePar(par, restr2, x.model), x.model)
         ind = findall(isfinite.(temp))
 
         tStat = x.θ ./ x.se

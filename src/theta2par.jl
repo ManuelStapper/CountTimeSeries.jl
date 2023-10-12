@@ -257,35 +257,51 @@ function θ2par(θ::Vector{T}, model::INMAModel)::parameter where {T <: Real}
     parameter(β0, Vector{Float64}([]), β, η, ϕ, ω)
 end
 
-# Idea: Take vector and put restrictions in the correct place
+# Idea: Take vector of free parameters and put restrictions in the correct place
+#       to get the "full" parameter vector
 function expandRestrictions(θ::Vector{T1},
     model::T2,
     restr::Vector{Pair{String, T3}}) where {T1, T3<:Real, T2 <: CountModel}
-    #
+    # If no restriction, nothing happens
     if length(restr) == 0
         return θ
     end
+    # Find restricted parameters
     symVec = (x -> x[1]).(restr)
+
+    # Special case intercept parameter β0 (because of notation)
     if any(symVec .== "β0")
+        # If it is restricted, find the corresponding restriction
         i = findfirst(symVec .== "β0")
+        # Start the output vector of all parameters
         out = Float64(restr[i][2])
         if length(restr) == 1
+            # If that was the only restriction, done
             return [out; θ]
         else
-            restr = restr[2:end]
+            # Otherwise, remove the intercept parameter restriction
+            restr = restr[setdiff(1:length(restr), i)]
+            # Update the names of restricted parameters
             symVec = (x -> x[1]).(restr)
         end
     else
+        # If β0 is not restricted, it is the first element of θ
         out = θ[1]
         θ = θ[2:end]
     end
     
+    # Compute the length of paramter names, to find out if a certain parameter is restricted (such as α1)
+    # or a parameter without "order" (like ω)
     l = length.(symVec)
+    # Then split the parameter name into the parameter class "sym", the index "ind"
+    # and the restriction value "vals"
+    # "α2" => 0.5   -->   :α, 2 and 0.5 
     sym = fill(:a, length(l))
     ind = zeros(Int64, length(l))
     vals = (x -> Float64(x[2])).(restr)
     for i = 1:length(l)
         if l[i] > 1
+            # If it has ordering number
             sym[i] = Symbol(symVec[i][1])
             ind[i] = parse(Int64, last(symVec[i], l[i] - 1))
         else
@@ -293,14 +309,20 @@ function expandRestrictions(θ::Vector{T1},
         end
     end
     
+    # If there are restrictions of α parameters, check first if the model contains those
     if typeof(model) in [INARModel, INARMAModel, INARCHModel, INGARCHModel]
         if any(sym .== :α)
+            # If one or more α parameters are restricted, find out which restrictions
             indα = findall(sym .== :α)
+            # Number of α restrictions
             nr = length(indα)
+            # Initialise the α parameter vector
             temp = fill(-Inf, length(model.pastObs))
+            # Fill in all values in the α vector that come from restrictions
             for i = 1:nr
                 temp[ind[indα[i]]] = vals[indα[i]]
             end
+            # Then fill in the values from "free" parameters
             for i = 1:length(temp)
                 if !isfinite(temp[i])
                     temp[i] = θ[1]
@@ -309,11 +331,14 @@ function expandRestrictions(θ::Vector{T1},
             end
             out = [out; temp]
         else
+            # If there are no restrictions, just add the free parameters to the output
+            # and remove them from input
             out = [out; θ[1:length(model.pastObs)]]
             θ = θ[length(model.pastObs)+1:end]
         end
     end
     
+    # Same procedure for β, η and ϕ parameters as for α parameters
     if typeof(model) in [INARMAModel, INMAModel, INGARCHModel]
         if any(sym .== :β)
             indβ = findall(sym .== :β)

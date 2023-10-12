@@ -73,25 +73,49 @@ end
 
 
 # With restrictions
-function changePar(par::parameter, restr::Vector{Pair{String,T}}) where {T<:Real}
+
+# Create function that takes a parameter object and restrictions and replaces the restricted elements
+function changePar(par::parameter, restr::Vector{Pair{String,T1}}, model::T2) where {T1<:Real, T2 <: CountModel}
+    # Number of restrictions
     nR = length(restr)
+    # Create copy to update for output
     out = deepcopy(par)
+    # Vector of parameter names
     pn = propertynames(out)
+    # Iterate over all restrictions
     for i = 1:nR
+        # Which parameter is affected by the restriction?
+        # One of: :β0, :α, :β, :η, :ϕ, :ω
         sym = Symbol(restr[i][1])
-        if sym in pn
+        if sym in pn # If the parameter name is not indexed (For ϕ and ω)
             field = getfield(out, sym)
+            # If the replacement type is a vector (for example for ϕ)
             if typeof(field) == Vector{Float64}
                 setfield!(out, sym, fill(Float64(restr[i][2]), length(field)))
             else
+                # Otherwise, replace just one value
                 setfield!(out, sym, Float64(restr[i][2]))
             end
-        else
+        else # If the parameter name contains index (such as α1 or β10 or such)
+            # Get the corresponding complete vector
             temp = getfield(out, Symbol(restr[i][1][1]))
-            iChange = parse(Int64, restr[i][1][end])
+
+            # Find out which value to replace
+
+            # iOrder is the value given in the restriction: "α7" -> 7, might be 2 digit number
+            iOrder = parse(Int64, last(restr[i][1], length(restr[i][1]) - 1))
+
+            if string(sym)[1] == 'α'
+                iChange = findfirst(model.pastObs .== iOrder)
+            elseif string(sym)[1] == 'β'
+                iChange = findfirst(model.pastMean .== iOrder)
+            else
+                iChange = iOrder
+            end
             if iChange > length(temp)
                 error("Invalid restriction")
             end
+            # Replace value and update in parameter object
             temp[iChange] = Float64(restr[i][2])
             setfield!(out, Symbol(restr[i][1][1]), temp)
         end
@@ -99,11 +123,11 @@ function changePar(par::parameter, restr::Vector{Pair{String,T}}) where {T<:Real
     return out
 end
 
-function par2θ(θ::parameter,
+function par2θNew(θ::parameter,
                model::T1,
                restr::Vector{Pair{String, T2}})::Vector{Float64} where {T1<:CountModel, T2 <: Real}
     if length(restr) > 0
-        θ = changePar(θ, restr)
+        θ = changePar(θ, restr, model)
     end
     return par2θ(θ, model)
 end

@@ -424,11 +424,6 @@ function removeRestrictions(θ::Vector{T1},
     out = par2θ(changePar(par, restr2), model)
     out[isfinite.(out)]
 end
-θ = [10, 0.5, 3]
-model = Model(pastObs = 1, distr = "NegativeBinomial")
-restr = ["β0" => 9]
-removeRestrictions(θ, model, restr)
-
 
 function θ2par(θ::Vector{T1},
     model::T2,

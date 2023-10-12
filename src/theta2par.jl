@@ -320,7 +320,8 @@ function expandRestrictions(θ::Vector{T1},
             temp = fill(-Inf, length(model.pastObs))
             # Fill in all values in the α vector that come from restrictions
             for i = 1:nr
-                temp[ind[indα[i]]] = vals[indα[i]]
+                iChange = findfirst(model.pastObs .== ind[indα[i]])
+                temp[iChange] = vals[indα[i]]
             end
             # Then fill in the values from "free" parameters
             for i = 1:length(temp)
@@ -345,7 +346,8 @@ function expandRestrictions(θ::Vector{T1},
             nr = length(indβ)
             temp = fill(-Inf, length(model.pastMean))
             for i = 1:nr
-                temp[ind[indβ[i]]] = vals[indβ[i]]
+                iChange = findfirst(model.pastObs .== ind[indα[i]])
+                temp[iChange] = vals[indβ[i]]
             end
             for i = 1:length(temp)
                 if !isfinite(temp[i])

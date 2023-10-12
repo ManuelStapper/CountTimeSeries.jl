@@ -421,7 +421,7 @@ function removeRestrictions(θ::Vector{T1},
     for i = 1:length(restr)
         restr2[i] = Pair(restr[i][1], Inf)
     end
-    out = par2θ(changePar(par, restr2), model)
+    out = par2θ(changePar(par, restr2, model), model)
     out[isfinite.(out)]
 end
 

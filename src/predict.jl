@@ -446,14 +446,14 @@ function predict(results::INARMAresults,
     # Initialization
     @inbounds for i = 1:M
         if rE > 0
-            for i = iE
-                μ[i] += (η[i]*results.model.X[i, T - M + i])
+            for ii = iE
+                μ[i] += (η[ii]*results.model.X[ii, T - M + i])
             end
         end
 
         if rI > 0
-            for i = iI
-                λ[i] += η[i]*results.model.X[i, T - M + i]
+            for ii = iI
+                λ[i] += η[ii]*results.model.X[ii, T - M + i]
             end
         end
 

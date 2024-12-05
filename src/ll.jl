@@ -808,7 +808,7 @@ function CoreINAR(y::Vector{Int64},
 
         ptemp = GetProbFromP(PAR)
         for i = 0:y[t]
-            out += PR[i+1]*ptemp[y[t] - i + 1]
+            out += PR[i+1, t]*ptemp[y[t] - i + 1]
         end
         lls[t] = log(out)
     end

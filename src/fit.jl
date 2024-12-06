@@ -245,7 +245,11 @@ function fit(y::Vector{Int64},
         Σ = zeros(nPar, nPar)
     end
 
-    res = INARMAresults(y, estsVec, ests, LLmax, LLs, nPar, nObs, se, CI, Σ, model, cvg, MLEControl)
+    # Compute residuals
+    λ = fittedValues(y, model, ests)
+    resi = y .- λ
+
+    res = INARMAresults(y, estsVec, ests, λ, resi, LLmax, LLs, nPar, nObs, se, CI, Σ, model, cvg, MLEControl)
 
     if printResults
         show(res, restr)

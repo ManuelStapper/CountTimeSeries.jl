@@ -65,6 +65,8 @@ end
 * `y`: Time series
 * `θ`: Estimates (vector)
 * `pars`: Estimates (parameter)
+* `λ`: Conditional means
+* `residuals`: Residuals (y - E(y|past)))
 * `LL`: Maximum of likelihood
 * `LLs`: Likelihood contributions
 * `nPar`: Number of parameters
@@ -80,6 +82,8 @@ mutable struct INARMAresults{T <: INARMA} <: Results
     y::Vector{Int64}
     θ::Vector{Float64}
     pars::parameter
+    λ::Vector{Float64}
+    residuals::Vector{Float64}
     LL::Float64
     LLs::Vector{Float64}
     nPar::Int64

@@ -121,4 +121,30 @@ using Test
     model = Model(zi = true, X = X2, external = [true, true])
     y = simulate(100, model, [10, 0.1, 0.01, 0.01])[1]
     ll(y, model, [10, 0.1, 0.01, 0.01])
+
+    model = Model(model = "INARMA", pastObs = 1)
+    pars = θ2par([10, 0.5], model)
+    y = simulate(100, model, pars)[1]
+    CountTimeSeries.fittedValues(y, model, pars)
+
+    model = Model(model = "INARMA", pastObs = 1, pastMean = 1)
+    pars = θ2par([10, 0.5, 0.5], model)
+    y = simulate(100, model, pars)[1]
+    CountTimeSeries.fittedValues(y, model, pars)
+
+    mean(model, pars)
+    var(model, pars)
+    acf(model, pars, 10)
+    acvf(model, pars, 10)
+
+    model = Model(model = "INGARCH", pastObs = 1, pastMean = 1)
+    pars = θ2par([10, 0.5, 0.3], model)
+    mean(model, pars)
+    mean(model, pars, true)
+    var(model, pars)
+    var(model, pars, true)
+    acf(model, pars, 10)
+    acf(model, pars, 10, true)
+    acvf(model, pars, 10)
+    acvf(model, pars, 10, true)
 end

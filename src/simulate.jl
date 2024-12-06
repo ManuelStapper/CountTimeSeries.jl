@@ -722,11 +722,3 @@ function simulate(T::Int64,
 
     simulate(T, model, θ2par(θ, model), burnin = burnin, pinfirst = pinfirst)
 end
-
-function simulate(T::Int64,
-                  model::T1,
-                  θ::Array{T2, 1};
-                  burnin::Int64 = 500,
-                  pinfirst::Array{T3, 1} = Vector{Float64}(undef, 0)) where {T1 <: CountModel, T2, T3 <: Real}
-    simulate(T, model, θ2par(θ, model), burnin = burnin, pinfirst = pinfirst)
-end

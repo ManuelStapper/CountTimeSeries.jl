@@ -162,7 +162,7 @@ using Test
     res = fit(y, model)
     pit(res)
 
-    odel = Model(model = "INGARCH", distr = "NegativeBinomial", pastObs = 1, pastMean = 1, zi = true)
+    model = Model(model = "INGARCH", distr = "NegativeBinomial", pastObs = 1, pastMean = 1, zi = true)
     y = CountTimeSeries.simulate(100, model, [10, 0.5, 0.2, 3, 0.2])[1]
     res = fit(y, model)
     pit(res)

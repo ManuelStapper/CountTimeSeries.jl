@@ -2,7 +2,7 @@ using CountTimeSeries
 using Test
 
 @testset "CountTimeSeries.jl" begin
-    using Random
+    using Random, Distributions
     X = reshape(collect(1:100) .+ 0.0, (1, 100))
     X2 = vcat((1:100)', ((1:100).^2)') .+ 0.0
     models = Array{Any, 1}(undef, 30)
@@ -147,4 +147,33 @@ using Test
     acf(model, pars, 10, true)
     acvf(model, pars, 10)
     acvf(model, pars, 10, true)
+
+    0.5 ∘ 10
+    Poisson(0.5) ∘ 10
+    0.5 ∘ Poisson(10)
+    Binomial(1, 0.5) ∘ Poisson(10)
+    u = rand(1)[1]
+    ∘(0.5, 10, u)
+    ∘(Binomial(1, 0.5), 10, rand(10))
+
+
+    model = Model(model = "INGARCH", distr = "NegativeBinomial", pastObs = 1, pastMean = 1)
+    y = CountTimeSeries.simulate(100, model, [10, 0.5, 0.2, 3])[1]
+    res = fit(y, model)
+    pit(res)
+
+    odel = Model(model = "INGARCH", distr = "NegativeBinomial", pastObs = 1, pastMean = 1, zi = true)
+    y = CountTimeSeries.simulate(100, model, [10, 0.5, 0.2, 3, 0.2])[1]
+    res = fit(y, model)
+    pit(res)
+
+    model = Model(model = "INARMA", distr = "NegativeBinomial", pastObs = 1)
+    y = CountTimeSeries.simulate(100, model, [10, 0.5, 3])[1]
+    res = fit(y, model)
+    pit(res)
+
+    model = Model(model = "INARMA",  pastObs = 1)
+    y = CountTimeSeries.simulate(100, model, [10, 0.5])[1]
+    res = fit(y, model)
+    pit(res)
 end

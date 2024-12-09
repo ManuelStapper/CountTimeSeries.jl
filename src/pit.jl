@@ -91,12 +91,9 @@ function pit(results::INGARCHresults;
 end
 
 
-function pit(results::T1;
+function pit(results::INARMAresults{INARModel};
              nbins::Int64 = 10,
-             level::Float64 = 0.0) where {T1 <: INARMA}
-    if typeof(results.model) != INARModel
-        error("PIT histogram not supported for INARMA or INMA models.")
-    end
+             level::Float64 = 0.0)
     y = results.y
     ymax = maximum(y)
     T = length(y)

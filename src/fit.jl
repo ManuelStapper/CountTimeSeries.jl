@@ -227,7 +227,7 @@ function fit(y::Vector{Int64},
     end
 
     if MLEControl.ci & !ciProb
-        H = Calculus.hessian(vars -> ll(y, model, vars, restr, initiate=initiate)[1], estsVec)
+        H = Calculus.hessian(vars -> ll(y, model, vars, restr)[1], estsVec)
         if any(isnan.(H)) | any(.!isfinite.(H))
             ciProb = true
             println("No confidence intervals computed due to Inf/NaN in Hessian.")

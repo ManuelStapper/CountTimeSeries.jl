@@ -112,12 +112,13 @@ function show(x::INGARCHresults)
 
     r = length(x.model.external)
     nb = x.model.distr == "NegativeBinomial"
+    gp = x.model.distr == "GPoisson"
     if typeof(x.model) == INGARCHModel
-        name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
+        name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb | gp, "ϕ", []); ifelse(x.model.zi, "ω", [])]
     elseif typeof(x.model) == INARCHModel
-        name = ["β0"; string.("α", x.model.pastObs); string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
+        name = ["β0"; string.("α", x.model.pastObs); string.("η", 1:r); ifelse(nb | gp, "ϕ", []); ifelse(x.model.zi, "ω", [])]
     else
-        name = ["β0"; string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
+        name = ["β0"; string.("η", 1:r); ifelse(nb | gp, "ϕ", []); ifelse(x.model.zi, "ω", [])]
     end
 
     pr1 = round.(x.θ, digits = 4)
@@ -144,14 +145,17 @@ function show(x::INARMAresults)
     nb1 = x.model.distr[1] == "NegativeBinomial"
     nb2 = x.model.distr[2] == "NegativeBinomial"
 
+    gp1 = x.model.distr[1] == "GPoisson"
+    gp2 = x.model.distr[2] == "GPoisson"
+
     if typeof(x.model) == INARMAModel
-        name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+        name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1 | gp1, "ϕ1", []); ifelse(nb2 | gp2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
     elseif typeof(x.model) == INARModel
-        name = ["β0"; string.("α", x.model.pastObs); string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+        name = ["β0"; string.("α", x.model.pastObs); string.("η", 1:r); ifelse(nb1 | gp1, "ϕ1", []); ifelse(nb2 | gp2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
     elseif typeof(x.model) == INMAModel
-        name = ["β0"; string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+        name = ["β0"; string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1 | gp1, "ϕ1", []); ifelse(nb2 | gp2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
     else
-        name = ["β0"; string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+        name = ["β0"; string.("η", 1:r); ifelse(nb1 | gp1, "ϕ1", []); ifelse(nb2 | gp2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
     end
 
     pr1 = round.(x.θ, digits = 4)
@@ -189,12 +193,13 @@ function show(x::INGARCHresults, restr::Vector{Pair{String, T}}) where {T <: Rea
 
         r = length(x.model.external)
         nb = x.model.distr == "NegativeBinomial"
+        gp = x.model.distr == "GPoisson"
         if typeof(x.model) == INGARCHModel
-            name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
+            name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb | gp, "ϕ", []); ifelse(x.model.zi, "ω", [])]
         elseif typeof(x.model) == INARCHModel
-            name = ["β0"; string.("α", x.model.pastObs); string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
+            name = ["β0"; string.("α", x.model.pastObs); string.("η", 1:r); ifelse(nb | gp, "ϕ", []); ifelse(x.model.zi, "ω", [])]
         else
-            name = ["β0"; string.("η", 1:r); ifelse(nb, "ϕ", []); ifelse(x.model.zi, "ω", [])]
+            name = ["β0"; string.("η", 1:r); ifelse(nb | gp, "ϕ", []); ifelse(x.model.zi, "ω", [])]
         end
 
         nameR = name[findall(.!isfinite.(temp))]
@@ -241,14 +246,17 @@ function show(x::INARMAresults, restr::Vector{Pair{String, T}}) where {T <: Real
         nb1 = x.model.distr[1] == "NegativeBinomial"
         nb2 = x.model.distr[2] == "NegativeBinomial"
 
+        gp1 = x.model.distr[1] == "GPoisson"
+        gp2 = x.model.distr[2] == "GPoisson"
+
         if typeof(x.model) == INARMAModel
-            name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+            name = ["β0"; string.("α", x.model.pastObs); string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1 | gp1, "ϕ1", []); ifelse(nb2 | gp2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
         elseif typeof(x.model) == INARModel
-            name = ["β0"; string.("α", x.model.pastObs); string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+            name = ["β0"; string.("α", x.model.pastObs); string.("η", 1:r); ifelse(nb1 | gp1, "ϕ1", []); ifelse(nb2 | gp2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
         elseif typeof(x.model) == INMAModel
-            name = ["β0"; string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+            name = ["β0"; string.("β", x.model.pastMean); string.("η", 1:r); ifelse(nb1 | gp1, "ϕ1", []); ifelse(nb2 | gp2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
         else
-            name = ["β0"; string.("η", 1:r); ifelse(nb1, "ϕ1", []); ifelse(nb2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
+            name = ["β0"; string.("η", 1:r); ifelse(nb1 | gp1, "ϕ1", []); ifelse(nb2 | gp2, "ϕ2", []); ifelse(x.model.zi, "ω", [])]
         end
         nameR = name[findall(.!isfinite.(temp))]
         name = name[ind]

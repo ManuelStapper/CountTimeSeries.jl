@@ -24,6 +24,7 @@ function pit(results::INGARCHresults;
     λ = results.λ
     zi = results.model.zi
     nb = results.model.distr == "NegativeBinomial"
+    gp = results.model.distr == "GPoisson"
 
     if zi
         ω = results.pars.ω
@@ -32,6 +33,12 @@ function pit(results::INGARCHresults;
             F = function(yt, λt)
                 pt = ϕ/(ϕ + λt)
                 d = MixtureModel([NegativeBinomial(ϕ, pt), Binomial(0)], [1 - ω, ω])
+                cdf(d, yt)
+            end
+        elseif gp
+            ϕ = results.pars.ϕ[1]
+            F = function(yt, λt)
+                d = MixtureModel([GPoisson(λt, ϕ), Binomial(0)], [1 - ω, ω])
                 cdf(d, yt)
             end
         else
@@ -46,6 +53,12 @@ function pit(results::INGARCHresults;
             F = function(yt, λt)
                 pt = ϕ/(ϕ + λt)
                 d = NegativeBinomial(ϕ, pt)
+                cdf(d, yt)
+            end
+        elseif gp
+            ϕ = results.pars.ϕ[1]
+            F = function(yt, λt)
+                d = GPoisson(λt, ϕ)
                 cdf(d, yt)
             end
         else
@@ -100,6 +113,9 @@ function pit(results::INARMAresults{INARModel};
     nb1 = results.model.distr[1] == "NegativeBinomial"
     nb2 = results.model.distr[2] == "NegativeBinomial"
 
+    gp1 = results.model.distr[1] == "GPoisson"
+    gp2 = results.model.distr[2] == "GPoisson"
+
     logl1 = results.model.link[1] == "Log"
     lin1 = !logl1
     logl2 = results.model.link[2] == "Log"
@@ -112,11 +128,11 @@ function pit(results::INARMAresults{INARModel};
     r = length(results.model.external)
 
     α = results.pars.α
-    if nb1
+    if nb1 | gp1
         ϕ1 = results.pars.ϕ[1]
     end
 
-    if nb2
+    if nb2 | gp2
         ϕ2 = results.pars.ϕ[2]
     end
 
@@ -158,6 +174,8 @@ function pit(results::INARMAresults{INARModel};
     for t = 1:T
         if nb1
             PR[:, t] = pdf.(NegativeBinomial(ϕ1, ϕ1/(ϕ1 + λ[t])), 0:ymax)
+        elseif gp1
+            PR[:, t] = pdf.(GPoisson(λ[t], ϕ1), 0:ymax)
         else
             PR[:, t] = pdf.(Poisson(λ[t]), 0:ymax)
         end
@@ -170,6 +188,8 @@ function pit(results::INARMAresults{INARModel};
         if rE > 0
             if nb2
                 PZ[:, t] = pdf.(NegativeBinomial(ϕ2, ϕ2/(ϕ2 + μ[t])), 0:ymax)
+            elseif gp2
+                PZ[:, t] = pdf.(GPoisson(μ[t], ϕ2), 0:ymax)
             else
                 PZ[:, t] = pdf.(Poisson(μ[t]), 0:ymax)
             end

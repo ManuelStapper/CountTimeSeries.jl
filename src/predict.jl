@@ -60,6 +60,7 @@ function predict(results::INGARCHresults,
     T = length(y)
     zi = results.model.zi
     nb = results.model.distr == "NegativeBinomial"
+    gp = results.model.distr == "GPoisson"
     logl = results.model.link == "Log"
     lin = !logl
     pars = results.pars
@@ -203,6 +204,7 @@ function predict(results::INGARCHresults,
     T = length(y)
     zi = results.model.zi
     nb = results.model.distr == "NegativeBinomial"
+    gp = results.model.distr == "GPoisson"
     logl = results.model.link == "Log"
     lin = !logl
     pars = results.pars
@@ -251,7 +253,7 @@ function predict(results::INGARCHresults,
     β0 = Float64(pars.β0)
     α = pars.α
     β = pars.β
-    if nb
+    if nb | gp
         ϕ = pars.ϕ[1]
     else
         ϕ = 0.0
@@ -317,6 +319,8 @@ function predict(results::INGARCHresults,
             if nb
                 p = ϕ/(ϕ + λ[i, t])
                 Y[i, t] = rand(NegativeBinomial(ϕ, p))*(rand() > ω)
+            elseif gp
+                Y[i, t] = rand(GPoisson(λ[i, t], ϕ))*(rand() > ω)
             else
                 Y[i, t] = rand(Poisson(λ[i, t]))*(rand() > ω)
             end
@@ -381,6 +385,8 @@ function predict(results::INARMAresults,
     zi = results.model.zi
     nb1 = results.model.distr[1] == "NegativeBinomial"
     nb2 = results.model.distr[2] == "NegativeBinomial"
+    gp1 = results.model.distr[1] == "GPoisson"
+    gp2 = results.model.distr[2] == "GPoisson"
     logl1 = results.model.link[1] == "Log"
     logl2 = results.model.link[2] == "Log"
     lin1 = !logl1
@@ -427,10 +433,10 @@ function predict(results::INARMAresults,
     β0 = pars.β0
     α = pars.α
     β = pars.β
-    if nb1
+    if nb1 | gp1
         ϕ1 = pars.ϕ[1]
     end
-    if nb2
+    if nb2 | gp2
         ϕ2 = pars.ϕ[2]
     end
     η = Vector{Float64}(pars.η)
@@ -466,12 +472,16 @@ function predict(results::INARMAresults,
 
         if nb1
             dR = MixtureModel([NegativeBinomial(ϕ1, ϕ1/(ϕ1 + λ[i])), Poisson(0)], [1 - ω, ω])
+        elseif gp1
+            dR = MixtureModel([GPoisson(λ[i], ϕ1), Poisson(0)], [1 - ω, ω])
         else
             dR = MixtureModel([Poisson(λ[i]), Poisson(0)], [1 - ω, ω])
         end
 
         if nb2
             dZ = NegativeBinomial(ϕ2, ϕ2/(ϕ2 + μ[i]))
+        elseif gp2
+            dZ = GPoisson(μ[i], ϕ2)
         else
             dZ = Poisson(μ[i])
         end
@@ -514,12 +524,16 @@ function predict(results::INARMAresults,
 
         if nb1
             dR = MixtureModel([NegativeBinomial(ϕ1, ϕ1/(ϕ1 + λ[t])), Poisson(0)], [1 - ω, ω])
+        elseif gp1
+            dR = MixtureModel([GPoisson(λ[t], ϕ1), Poisson(0)], [1 - ω, ω])
         else
             dR = MixtureModel([Poisson(λ[t]), Poisson(0)], [1 - ω, ω])
         end
 
         if nb2
             dZ = NegativeBinomial(ϕ2, ϕ2/(ϕ2 + μ[t]))
+        elseif gp2
+            dZ = GPoisson(μ[t], ϕ2)
         else
             dZ = Poisson(μ[t])
         end

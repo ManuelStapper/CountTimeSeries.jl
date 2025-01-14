@@ -9,7 +9,7 @@ Default setting is an an IID Poisson process without regressors or zero inflatio
 
 Structs have entries:
 
-* `distr`: "Poisson" or "Negative Binomial" (Vector for INARMA)
+* `distr`: "Poisson", "Negative Binomial", or "GPoisson" (Vector for INARMA)
 * `link`: Vector of length two, "Linear" or "Log" (Vector for INARMA)
 * `pastObs`: Lags considered in autoregressive part
 * `pastMean`: Lags considered in MA/past conditional mean part
@@ -42,7 +42,7 @@ function Model(;model = "INGARCH",
 
     # Check distribution
     if typeof(distr) == String
-        if !(distr in ["Poisson", "NegativeBinomial"])
+        if !(distr in ["Poisson", "NegativeBinomial", "GPoisson"])
             error("Invalid distribution.")
         else
             distr = fill(distr, 2)
@@ -58,11 +58,11 @@ function Model(;model = "INGARCH",
             distr = distr[1:2]
         end
 
-        if !(distr[1] in ["Poisson", "NegativeBinomial"])
+        if !(distr[1] in ["Poisson", "NegativeBinomial", "GPoisson"])
             error("Invalid (first) distribution.")
         end
 
-        if !(distr[2] in ["Poisson", "NegativeBinomial"])
+        if !(distr[2] in ["Poisson", "NegativeBinomial", "GPoisson"])
             error("Invalid (second) distribution.")
         end
     else
@@ -256,7 +256,7 @@ function Model(;model = "INGARCH",
         end
     end
 
-    if sum(distr .== "NegativeBinomial") == 2
+    if sum(distr .!= "Poisson") == 2
         if r == 0
             distr[2] = "Poisson"
         else

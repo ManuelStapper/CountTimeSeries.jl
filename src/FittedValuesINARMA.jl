@@ -20,11 +20,16 @@ function fittedValues(y::Vector{Int64},
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
+
     if r == 0
         nb2 = false
+        gp2 = false
     else
         if sum(model.external) == 0
             nb2 = false
+            gp2 = false
         end
     end
 
@@ -39,7 +44,7 @@ function fittedValues(y::Vector{Int64},
 
     M = P
 
-    if !CountTimeSeries.parametercheck(θ, model)
+    if !parametercheck(θ, model)
         return -Inf, fill(-Inf, T)
     end
 
@@ -68,9 +73,9 @@ function fittedValues(y::Vector{Int64},
         ηI = η[iI]
         ηE = η[iE]
 
-        λ, μ = CountTimeSeries.createλμ(T, β0, rI, iI, η, X, rE, iE, logl1, logl2)
+        λ, μ = createλμ(T, β0, rI, iI, η, X, rE, iE, logl1, logl2)
     else
-        λ, μ = CountTimeSeries.createλμ(T, β0, logl1)
+        λ, μ = createλμ(T, β0, logl1)
     end
     
     out = λ .* (1 - ω) .+ μ
@@ -101,11 +106,16 @@ function fittedValues(y::Vector{Int64},
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
+
     if r == 0
         nb2 = false
+        gp2 = false
     else
         if sum(model.external) == 0
             nb2 = false
+            gp2 = false
         end
     end
 
@@ -126,7 +136,7 @@ function fittedValues(y::Vector{Int64},
     end
     M = maximum([P, Q])
 
-    if !CountTimeSeries.parametercheck(θ, model)
+    if !parametercheck(θ, model)
         return fill(0.0, T)
     end
 
@@ -165,9 +175,9 @@ function fittedValues(y::Vector{Int64},
         ηI = η[iI]
         ηE = η[iE]
 
-        λ, μ = CountTimeSeries.createλμ(T, β0, rI, iI, η, X, rE, iE, logl1, logl2)
+        λ, μ = createλμ(T, β0, rI, iI, η, X, rE, iE, logl1, logl2)
     else
-        λ, μ = CountTimeSeries.createλμ(T, β0, logl1)
+        λ, μ = createλμ(T, β0, logl1)
     end
 
     λ2 = λ .* (1 - ω)

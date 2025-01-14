@@ -53,6 +53,7 @@ function simulate(T::Int64,
     lin = !logl
 
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
     zi = model.zi
 
     β0 = θ.β0
@@ -89,9 +90,12 @@ function simulate(T::Int64,
 
         if nb
             y = rand.(NegativeBinomial.(ϕ[1], ϕ[1]./(ϕ[1] .+ λ)))
+        elseif gp
+            y = rand.(GPoisson(λ, ϕ[1]))
         else
             y = rand.(Poisson.(λ))
         end
+
 
         y = y.*(rand(T + burnin) .>= ω)
         λzi = λ.*(1 - ω)
@@ -111,6 +115,8 @@ function simulate(T::Int64,
 
     if nb
         y[1:M] = rand.(NegativeBinomial.(ϕ[1], ϕ[1]./(ϕ[1] .+ λ[1:M])))
+    elseif gp
+        y[1:M] = rand.(GPoisson.(λ[1:M], ϕ[1]))
     else
         y[1:M] = rand.(Poisson.(λ[1:M]))
     end
@@ -147,6 +153,8 @@ function simulate(T::Int64,
 
         if nb
             y[t] = rand(NegativeBinomial(ϕ[1], ϕ[1]/(ϕ[1] + λ[t])))
+        elseif gp
+            y[t] = rand(GPoisson(λ[t], ϕ[1]))
         else
             y[t] = rand(Poisson(λ[t]))
         end
@@ -200,6 +208,7 @@ function simulate(T::Int64,
     lin = !logl
 
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
     zi = model.zi
 
     β0 = θ.β0
@@ -222,6 +231,8 @@ function simulate(T::Int64,
 
         if nb
             y = rand.(NegativeBinomial.(ϕ[1], ϕ[1]./(ϕ[1] .+ λ)))
+        elseif gp
+            y = rand.(GPoisson.(λ, ϕ[1]))
         else
             y = rand.(Poisson.(λ))
         end
@@ -240,6 +251,8 @@ function simulate(T::Int64,
 
     if nb
         y[1:M] = rand.(NegativeBinomial.(ϕ[1], ϕ[1]./(ϕ[1] .+ λ[1:M])))
+    elseif gp
+        y[1:M] = rand.(GPoisson.(λ[1:M], ϕ[1]))
     else
         y[1:M] = rand.(Poisson.(λ[1:M]))
     end
@@ -268,6 +281,8 @@ function simulate(T::Int64,
 
         if nb
             y[t] = rand(NegativeBinomial(ϕ[1], ϕ[1]/(ϕ[1] + λ[t])))
+        elseif gp
+            y[t] = rand(GPoisson(λ[t], ϕ[1]))
         else
             y[t] = rand(Poisson(λ[t]))
         end
@@ -312,6 +327,7 @@ function simulate(T::Int64,
     lin = !logl
 
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
     zi = model.zi
 
     β0 = θ.β0
@@ -332,6 +348,8 @@ function simulate(T::Int64,
 
     if nb
         y = rand.(NegativeBinomial.(ϕ[1], ϕ[1]./(ϕ[1] .+ λ)))
+    elseif gp
+        y = rand.(GPoisson.(λ, ϕ[1]))
     else
         y = rand.(Poisson.(λ))
     end
@@ -384,6 +402,9 @@ function simulate(T::Int64,
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
 
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
+
     β0 = θ.β0
     α = θ.α
     β = θ.β
@@ -403,7 +424,7 @@ function simulate(T::Int64,
     end
 
     R = fill(0, T + burnin)
-    Z = fill(0, T+ burnin)
+    Z = fill(0, T + burnin)
 
     μ = zeros(T + burnin)
     λ = fill(β0, T + burnin)
@@ -432,6 +453,8 @@ function simulate(T::Int64,
     if nb1
         p1 = ϕ[1]./(ϕ[1] .+ λ)
         R = rand.(NegativeBinomial.(ϕ[1], p1))
+    elseif gp1
+        R = rand.(GPoisson.(λ, ϕ[1]))
     else
         R = rand.(Poisson.(λ))
     end
@@ -441,8 +464,10 @@ function simulate(T::Int64,
     end
 
     if nb2
-        p2 = ϕ[1 + nb1]./(ϕ[1 + nb1] .+ μ)
-        Z = rand.(NegativeBinomial.(ϕ[1 + nb1], p2))
+        p2 = ϕ[1 + nb1 + gp1]./(ϕ[1 + nb1 + gp1] .+ μ)
+        Z = rand.(NegativeBinomial.(ϕ[1 + nb1 + gp1], p2))
+    elseif gp2
+        Z = rand.(GPoisson.(μ, ϕ[1 + gp1 + nb1]))
     else
         Z = rand.(Poisson.(μ))
     end
@@ -508,6 +533,9 @@ function simulate(T::Int64,
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
 
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
+
     β0 = θ.β0
     α = θ.α
     η = θ.η
@@ -555,6 +583,8 @@ function simulate(T::Int64,
     if nb1
         p1 = ϕ[1]./(ϕ[1] .+ λ)
         R = rand.(NegativeBinomial.(ϕ[1], p1))
+    elseif gp1
+        R = rand.(GPoisson.(λ, ϕ[1]))
     else
         R = rand.(Poisson.(λ))
     end
@@ -564,8 +594,10 @@ function simulate(T::Int64,
     end
 
     if nb2
-        p2 = ϕ[1 + nb1]./(ϕ[1 + nb1] .+ μ)
-        Z = rand.(NegativeBinomial.(ϕ[1 + nb1], p2))
+        p2 = ϕ[1 + nb1 + gp1]./(ϕ[1 + nb1 + gp1] .+ μ)
+        Z = rand.(NegativeBinomial.(ϕ[1 + nb1 + gp1], p2))
+    elseif gp2
+        Z = rand.(GPoisson.(μ, ϕ[1 + nb1 + gp1]))
     else
         Z = rand.(Poisson.(μ))
     end
@@ -627,6 +659,9 @@ function simulate(T::Int64,
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
 
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
+
     β0 = θ.β0
     β = θ.β
     η = θ.η
@@ -645,7 +680,7 @@ function simulate(T::Int64,
     end
 
     R = fill(0, T + burnin)
-    Z = fill(0, T+ burnin)
+    Z = fill(0, T + burnin)
 
     μ = zeros(T + burnin)
     λ = fill(β0, T + burnin)
@@ -674,6 +709,8 @@ function simulate(T::Int64,
     if nb1
         p1 = ϕ[1]./(ϕ[1] .+ λ)
         R = rand.(NegativeBinomial.(ϕ[1], p1))
+    elseif gp1
+        R = rand.(GPoisson.(λ, ϕ[1]))
     else
         R = rand.(Poisson.(λ))
     end
@@ -683,8 +720,10 @@ function simulate(T::Int64,
     end
 
     if nb2
-        p2 = ϕ[1 + nb1]./(ϕ[1 + nb1] .+ μ)
-        Z = rand.(NegativeBinomial.(ϕ[1 + nb1], p2))
+        p2 = ϕ[1 + nb1 + gp1]./(ϕ[1 + nb1 + gp1] .+ μ)
+        Z = rand.(NegativeBinomial.(ϕ[1 + nb1 + gp1], p2))
+    elseif gp2
+        Z = rand.(GPoisson.(μ, ϕ[1 + nb1 + gp1]))
     else
         Z = rand.(Poisson.(μ))
     end

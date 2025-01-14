@@ -176,4 +176,74 @@ using Test
     y = CountTimeSeries.simulate(100, model, [10, 0.5])[1]
     res = fit(y, model)
     pit(res)
+
+    # Test block for GPoisson
+    d = GPoisson(10, 0.5)
+    pdf(d, 0)
+    cdf(d, 10)
+    mean(d)
+    var(d)
+    minimum(d)
+    maximum(d)
+    mode(d)
+    modes(d)
+    logpdf(d, 1)
+    rand(d)
+    rand(d, 10)
+    quantile(d, 0.7)
+
+    model1 = Model(model = "INGARCH", pastObs = 1, pastMean = 1, zi = true, distr = "GPoisson")
+    model2 = Model(model = "INARMA", pastObs = 1, pastMean = 1, zi = true, distr = "GPoisson")
+    model3 = Model(model = "INARMA", pastObs = 1, zi = true, distr = "GPoisson")
+
+    pars1 = θ2par([5, 0.4, 0.4, 0.8, 0.2], model1)
+    pars2 = θ2par([5, 0.4, 0.4, 0.8, 0.2], model2)
+    pars3 = θ2par([5, 0.4, 0.8, 0.2], model3)
+
+    Random.seed!(1)
+    y1 = simulate(1000, model1, pars1)[1]
+    y2 = simulate(1000, model2, pars2)[1]
+    y3 = simulate(1000, model3, pars3)[1]
+
+    settings1 = MLESettings(y1, model1)
+    settings2 = MLESettings(y2, model2)
+    settings3 = MLESettings(y3, model3)
+
+    results1 = fit(y1, model1, settings1)
+    results2 = fit(y2, model2, settings2)
+    results3 = fit(y3, model3, settings3)
+
+    pit(results1)
+    pit(results3)
+   
+    AIC(results1)
+    AIC(results2)
+    AIC(results3)
+    BIC(results1)
+    BIC(results2)
+    BIC(results3)
+    HQIC(results1)
+    HQIC(results2)
+    HQIC(results3)
+
+    acf(model1, pars1)
+    acf(model2, pars2)
+    acf(model3, pars3)
+    acvf(model1, pars1)
+    acvf(model2, pars2)
+    acvf(model3, pars3)
+
+    mean(model1, pars1)
+    mean(model2, pars2)
+    mean(model3, pars3)
+    var(model1, pars1)
+    var(model2, pars2)
+    var(model3, pars3)
+
+    predict(results1, 10, 1000)
+    predict(results2, 10, 1000)
+    predict(results3, 10, 1000)
+    predict(results1, 10)
+    predict(results2, 10)
+    predict(results3, 10)
 end

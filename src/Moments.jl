@@ -112,7 +112,8 @@ function acvf(model::T,
         ω = 0.0
     end
     nb = model.distr == "NegativeBinomial"
-    if nb
+    gp = model.distr == "GPoisson"
+    if nb | gp
         ϕ = θ.ϕ[1]
     else
         ϕ = Inf
@@ -126,8 +127,13 @@ function acvf(model::T,
     y = zeros(pq + q + 2)
     
     X[1, pq + 2] = (1 - ω)*(1/ϕ + 1)
-    X[1, 1] -= 1
     y[1] = -λ*(1 - ω)*(λ/ϕ + λ*ω + 1)
+    if gp
+        X[1, pq + 2] = 1 - ω
+        y[1] = -(ϕ^2 * λ * (1 - ω) + λ^2 * ω * (1 - ω))
+    end
+    X[1, 1] -= 1
+    
 
     for h = 1:pq
         for i = 1:p
@@ -154,7 +160,7 @@ function acvf(model::T,
         for i = 1:q
             X[pq + 2 + h, pq + 2 + abs(h - i)] = β[i]
         end
-        X[pq + 2 + h, pq + 2 + h] -= 1        
+        X[pq + 2 + h, pq + 2 + h] -= 1
     end
 
     temp = inv(X)*y
@@ -371,6 +377,15 @@ function acvf(model::T,
         β = θ.β
     end
 
+    if q == 0
+        q = 1
+        β = [0.0]
+    end
+    if p == 0
+        p = 1
+        α = [0.0]
+    end
+
     zi = model.zi
     if zi
         ω = θ.ω
@@ -378,7 +393,8 @@ function acvf(model::T,
         ω = 0.0
     end
     nb = model.distr[1] == "NegativeBinomial"
-    if nb
+    gp = model.distr[1] == "GPoisson"
+    if nb | gp
         ϕ = θ.ϕ[1]
     else
         ϕ = Inf
@@ -388,17 +404,18 @@ function acvf(model::T,
     λ = (1 - ω)*β0
     μ = λ*(1 + sum(β))/(1 - sum(α))
     VarR = λ + β0^2*(1 - ω)*(1/ϕ + ω)
+    if gp
+        VarR = ϕ^2*β0*(1 - ω) + β0^2*ω*(1 - ω)
+    end
 
     X = zeros(p + q, p + q)
     y = zeros(p + q)
-
 
     # Step 1: Include formula for γ(0)
     for i = 1:p, j = 1:p
         ind = abs(i - j) + 1
         X[1, ind] += α[i] * α[j]
     end
-
     X[1, p+1] += 1 + sum(β.^2)
 
     for i = 1:q, j = 1:p

@@ -37,6 +37,7 @@ function ll(y::Vector{Int64},
     end
 
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
     zi = model.zi
 
     M = Int64(maximum([P, Q]))
@@ -54,18 +55,10 @@ function ll(y::Vector{Int64},
     lls = fill(0.0, T)
 
     if any(λ .< 0)
-        return (-Inf, fill(-Inf, T))
+        return -Inf, fill(-Inf, T)
     end
 
-    if !nb
-        d = Poisson.(λ[indrel])
-        if ω > 0
-            lls[indrel] = log.(pdf.(d, y[indrel]).*(1 - ω) .+ (y[indrel] .== 0).*ω)
-        else
-            lls[indrel] = logpdf.(d, y[indrel])
-        end
-        LL = sum(lls)
-    else
+    if nb
         ptemp = @. ϕ[1]/(ϕ[1] + λ[indrel])
         if any(ptemp .<= 0) | any(ptemp .> 1)
             return (-Inf, fill(-Inf, T))
@@ -77,6 +70,22 @@ function ll(y::Vector{Int64},
             lls[indrel] = logpdf.(d, y[indrel])
         end
 
+        LL = sum(lls)
+    elseif gp
+        d = GPoisson.(λ[indrel], ϕ[1])
+        if ω > 0
+            lls[indrel] = log.(pdf.(d, y[indrel]).*(1 - ω) .+ (y[indrel] .== 0).*ω)
+        else
+            lls[indrel] = logpdf.(d, y[indrel])
+        end
+        LL = sum(lls)
+    else
+        d = Poisson.(λ[indrel])
+        if ω > 0
+            lls[indrel] = log.(pdf.(d, y[indrel]).*(1 - ω) .+ (y[indrel] .== 0).*ω)
+        else
+            lls[indrel] = logpdf.(d, y[indrel])
+        end
         LL = sum(lls)
     end
 
@@ -104,11 +113,12 @@ function ll(y::Vector{Int64},
     lin = !logl
 
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
     zi = model.zi
 
     M = P
     nObs = T - M
-    nPar = 1 + p + r + nb + zi
+    nPar = 1 + p + r + nb + gp + zi
 
     if !parametercheck(θ, model)
         return -Inf, fill(-Inf, T)
@@ -128,15 +138,7 @@ function ll(y::Vector{Int64},
     end
 
     lls = zeros(T)
-    if !nb
-        d = Poisson.(λ[indrel])
-        if ω > 0
-            lls[indrel] = log.(pdf.(d, y[indrel]).*(1 - ω) .+ (y[indrel].== 0).*ω)
-        else
-            lls[indrel] = logpdf.(d, y[indrel])
-        end
-        LL = sum(lls)
-    else
+    if nb
         ptemp = ϕ[1]./(ϕ[1] .+ λ[indrel])
         if any(ptemp .<= 0) | any(ptemp .> 1)
             return (-Inf, fill(-Inf, T))
@@ -148,6 +150,22 @@ function ll(y::Vector{Int64},
             lls[indrel] = logpdf.(d, y[indrel])
         end
 
+        LL = sum(lls)
+    elseif gp
+        d = GPoisson.(λ[indrel], ϕ[1])
+        if ω > 0
+            lls[indrel] = log.(pdf.(d, y[indrel]).*(1 - ω) .+ (y[indrel].== 0).*ω)
+        else
+            lls[indrel] = logpdf.(d, y[indrel])
+        end
+        LL = sum(lls)
+    else
+        d = Poisson.(λ[indrel])
+        if ω > 0
+            lls[indrel] = log.(pdf.(d, y[indrel]).*(1 - ω) .+ (y[indrel].== 0).*ω)
+        else
+            lls[indrel] = logpdf.(d, y[indrel])
+        end
         LL = sum(lls)
     end
 
@@ -167,6 +185,7 @@ function ll(y::Vector{Int64},
     lin = !logl
 
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
     zi = model.zi
 
     nObs = T
@@ -186,15 +205,7 @@ function ll(y::Vector{Int64},
         return (-Inf, fill(-Inf, T))
     end
 
-    if !nb
-        d = Poisson.(λ)
-        if ω > 0
-            lls = log.(pdf.(d, y).*(1 - ω) .+ (y.== 0).*ω)
-        else
-            lls = logpdf.(d, y)
-        end
-        LL = sum(lls)
-    else
+    if nb
         ptemp = ϕ[1]./(ϕ[1] .+ λ)
         if any(ptemp .<= 0) | any(ptemp .> 1)
             return (-Inf, fill(-Inf, T))
@@ -206,6 +217,22 @@ function ll(y::Vector{Int64},
             lls = logpdf.(d, y)
         end
 
+        LL = sum(lls)
+    elseif gp
+        d = GPoisson.(λ, ϕ[1])
+        if ω > 0
+            lls = log.(pdf.(d, y).*(1 - ω) .+ (y.== 0).*ω)
+        else
+            lls = logpdf.(d, y)
+        end
+        LL = sum(lls)
+    else
+        d = Poisson.(λ)
+        if ω > 0
+            lls = log.(pdf.(d, y).*(1 - ω) .+ (y.== 0).*ω)
+        else
+            lls = logpdf.(d, y)
+        end
         LL = sum(lls)
     end
 
@@ -228,11 +255,17 @@ function ll(y::Vector{Int64},
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
+    
     if r == 0
         nb2 = false
+        gp2 = false
     else
         if sum(model.external) == 0
             nb2 = false
+            gp2 = false
         end
     end
 
@@ -298,6 +331,10 @@ function ll(y::Vector{Int64},
         end
     end
 
+    if any(λ .< 0)
+        return -Inf, fill(-Inf, T)
+    end
+
     PR = zeros(ymax + 1, T)
     PZ = zeros(ymax + 1, T)
     for t = 1:T
@@ -307,6 +344,8 @@ function ll(y::Vector{Int64},
                 return (-Inf, fill(-Inf, T))
             end
             PR[:, t] = pdf.(NegativeBinomial(ϕ[1], ptemp), 0:ymax)
+        elseif gp1
+            PR[:, t] = pdf.(GPoisson(λ[t], ϕ[1]), 0:ymax)
         else
             PR[:, t] = pdf.(Poisson(λ[t]), 0:ymax)
         end
@@ -317,12 +356,18 @@ function ll(y::Vector{Int64},
         end
 
         if rE > 0
+            if any(μ .<= 0)
+                return -Inf, fill(-Inf, T)
+            end
+
             if nb2
                 ptemp = ϕ[2]/(ϕ[2] + μ[t])
                 if (ptemp <= 0) | (ptemp > 1)
                     return (-Inf, fill(-Inf, T))
                 end
                 PZ[:, t] = pdf.(NegativeBinomial(ϕ[2], ptemp), 0:ymax)
+            elseif gp1
+                PZ[:, t] = pdf.(GPoisson(μ[t], ϕ[2]), 0:ymax)
             else
                 PZ[:, t] = pdf.(Poisson(μ[t]), 0:ymax)
             end
@@ -460,6 +505,8 @@ function Pmat(λ::Vector{Float64},
               T::Int64,
               nb1::Bool,
               nb2::Bool,
+              gp1::Bool,
+              gp2::Bool,
               ϕ::Vector{Float64},
               zi::Bool,
               ω::Float64,
@@ -472,7 +519,13 @@ function Pmat(λ::Vector{Float64},
             PR[:, t] = pdf.(NegativeBinomial(ϕ[1], ϕ[1]/(ϕ[1] + λ[t])), 0:ymax)
         end
     end
-    if !nb1 & !zi
+    if gp1 & !zi
+        for t = 1:T
+            PR[:, t] = pdf.(GPoisson(λ[t], ϕ[1]), 0:ymax)
+        end
+    end
+
+    if !(nb1 | gp1) & !zi
         for t = 1:T
             PR[:, t] = pdf.(Poisson(λ[t]), 0:ymax)
         end
@@ -488,7 +541,17 @@ function Pmat(λ::Vector{Float64},
         end
     end
 
-    if !nb1 & zi
+    if gp1 & zi
+        PRtemp = zeros(T)
+        for t = 1:T
+            PRtemp = pdf.(GPoisson(λ[t], ϕ[1]), 0:ymax)
+
+            PR[2:ymax + 1, t] = PRtemp[2:ymax + 1].*(1 .- ω)
+            PR[1, t] = PRtemp[1] * (1 - ω) + ω
+        end
+    end
+
+    if !(nb1 | gp1) & zi
         PRtemp = zeros(T)
         for t = 1:T
             PRtemp = pdf.(Poisson(λ[t]), 0:ymax)
@@ -504,7 +567,13 @@ function Pmat(λ::Vector{Float64},
         end
     end
 
-    if !nb2 & (rE > 0)
+    if gp2 & (rE > 0)
+        for t = 1:T
+            PZ[:, t] = pdf.(GPoisson(μ[t], ϕ[2]), 0:ymax)
+        end
+    end
+
+    if !(nb2 | gp2) & (rE > 0)
         for t = 1:T
             PZ[:, t] = pdf.(Poisson(μ[t]), 0:ymax)
         end
@@ -664,11 +733,16 @@ function ll(y::Vector{Int64},
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
     if r == 0
         nb2 = false
+        gp2 = false
     else
         if sum(model.external) == 0
             nb2 = false
+            gp2 = false
         end
     end
 
@@ -733,7 +807,7 @@ function ll(y::Vector{Int64},
         λ, μ = createλμ(T, β0, logl1)
     end
 
-    PR, PZ = Pmat(λ, μ, ymax, T, nb1, nb2, ϕ, zi, ω, rE)
+    PR, PZ = Pmat(λ, μ, ymax, T, nb1, nb2, gp2, gp2, ϕ, zi, ω, rE)
 
     lls = zeros(T)
 
@@ -889,11 +963,15 @@ function ll(y::Vector{Int64},
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
     if r == 0
         nb2 = false
+        gp2 = false
     else
         if sum(model.external) == 0
             nb2 = false
+            gp2 = false
         end
     end
 
@@ -941,7 +1019,12 @@ function ll(y::Vector{Int64},
     else
         λ, μ = createλμ(T, β0, logl1)
     end
-    PR, PZ = Pmat(λ, μ, ymax, T, nb1, nb2, ϕ, zi, ω, rE)
+
+    if any(λ .< 0)
+        return -Inf, fill(-Inf, T)
+    end
+
+    PR, PZ = Pmat(λ, μ, ymax, T, nb1, nb2, gp1, gp2, ϕ, zi, ω, rE)
     PY = CreatePY(y, ymax, p, α)
     lls = CoreINAR(y, ymax, P, M, T, PY, PZ, PR)
 
@@ -950,7 +1033,6 @@ function ll(y::Vector{Int64},
     return LL, lls
 end
 
-import CountTimeSeries.ll
 function ll(y::Vector{Int64},
             model::T1,
             θ::Vector{Float64},

@@ -22,9 +22,10 @@ function θ2par(θ::Vector{T}, model::INGARCHModel)::parameter where {T <: Real}
     q = length(model.pastMean)
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
     zi = model.zi
 
-    nPar = 1 + p + q + r + nb + zi
+    nPar = 1 + p + q + r + nb + gp + zi
 
     if length(θ) != nPar
         error("Length of θ does not match model specification.")
@@ -38,7 +39,7 @@ function θ2par(θ::Vector{T}, model::INGARCHModel)::parameter where {T <: Real}
     used += q
     η = θ[used + 1:used + r]
     used += r
-    ϕ = θ[used + 1:used + nb]
+    ϕ = θ[used + 1:used + nb + gp]
     if length(ϕ) == 0
         ϕ = Vector{Float64}([])
     end
@@ -57,9 +58,11 @@ function θ2par(θ::Vector{T}, model::INARCHModel)::parameter where {T <: Real}
     p = length(model.pastObs)
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
+
     zi = model.zi
 
-    nPar = 1 + p + r + nb + zi
+    nPar = 1 + p + r + nb + gp + zi
 
     if length(θ) != nPar
         error("Length of θ does not match model specification.")
@@ -71,7 +74,7 @@ function θ2par(θ::Vector{T}, model::INARCHModel)::parameter where {T <: Real}
     used += p
     η = θ[used + 1:used + r]
     used += r
-    ϕ = θ[used + 1:used + nb]
+    ϕ = θ[used + 1:used + nb + gp]
     if length(ϕ) == 0
         ϕ = Vector{Float64}([])
     end
@@ -88,9 +91,10 @@ function θ2par(θ::Vector{T}, model::IIDModel)::parameter where {T <: Real}
     θ = Float64.(θ)
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
     zi = model.zi
 
-    nPar = 1 + r + nb + zi
+    nPar = 1 + r + nb + gp + zi
 
     if length(θ) != nPar
         error("Length of θ does not match model specification.")
@@ -100,7 +104,7 @@ function θ2par(θ::Vector{T}, model::IIDModel)::parameter where {T <: Real}
     used = 1
     η = θ[used + 1:used + r]
     used += r
-    ϕ = θ[used + 1:used + nb]
+    ϕ = θ[used + 1:used + nb + gp]
     if length(ϕ) == 0
         ϕ = Vector{Float64}([])
     end
@@ -120,16 +124,23 @@ function θ2par(θ::Vector{T}, model::INARMAModel)::parameter where {T <: Real}
     r = length(model.external)
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
+
     if r == 0
         nb2 = false
+        gp2 = false
     else
         if sum(model.external) == 0
             nb2 = false
+            gp2 = false
         end
     end
+
+
     zi = model.zi
 
-    nPar = 1 + p + q + r + nb1 + nb2 + zi
+    nPar = 1 + p + q + r + nb1 + nb2 + gp1 + gp2 + zi
 
     if length(θ) != nPar
         error("Length of θ does not match model specification.")
@@ -143,7 +154,7 @@ function θ2par(θ::Vector{T}, model::INARMAModel)::parameter where {T <: Real}
     used += q
     η = θ[used + 1:used + r]
     used += r
-    ϕtemp = θ[used + 1:used + nb1 + nb2]
+    ϕtemp = θ[used + 1:used + nb1 + nb2 + gp1 + gp2]
     if length(ϕtemp) == 2
         ϕ = ϕtemp
     end
@@ -153,7 +164,7 @@ function θ2par(θ::Vector{T}, model::INARMAModel)::parameter where {T <: Real}
     if length(ϕtemp) == 0
         ϕ =  Vector{Float64}([])
     end
-    used += nb1 + nb2
+    used += nb1 + nb2 + gp1 + gp2
     if zi
         ω = θ[end]
     else
@@ -169,16 +180,20 @@ function θ2par(θ::Vector{T}, model::INARModel)::parameter where {T <: Real}
     r = length(model.external)
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
     if r == 0
         nb2 = false
+        gp2 = false
     else
         if sum(model.external) == 0
             nb2 = false
+            gp2 = false
         end
     end
     zi = model.zi
 
-    nPar = 1 + p + r + nb1 + nb2 + zi
+    nPar = 1 + p + r + nb1 + nb2 + gp1 + gp2 + zi
 
     if length(θ) != nPar
         error("Length of θ does not match model specification.")
@@ -190,7 +205,7 @@ function θ2par(θ::Vector{T}, model::INARModel)::parameter where {T <: Real}
     used += p
     η = θ[used + 1:used + r]
     used += r
-    ϕtemp = θ[used + 1:used + nb1 + nb2]
+    ϕtemp = θ[used + 1:used + nb1 + nb2 + gp1 + gp2]
     if length(ϕtemp) == 2
         ϕ = ϕtemp
     end
@@ -200,7 +215,7 @@ function θ2par(θ::Vector{T}, model::INARModel)::parameter where {T <: Real}
     if length(ϕtemp) == 0
         ϕ = Vector{Float64}([])
     end
-    used += nb1 + nb2
+    used += nb1 + nb2 + gp1 + gp2
     if zi
         ω = θ[end]
     else
@@ -216,16 +231,20 @@ function θ2par(θ::Vector{T}, model::INMAModel)::parameter where {T <: Real}
     r = length(model.external)
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
     if r == 0
         nb2 = false
+        gp2 = false
     else
         if sum(model.external) == 0
             nb2 = false
+            gp2 = false
         end
     end
     zi = model.zi
 
-    nPar = 1 + q + r + nb1 + nb2 + zi
+    nPar = 1 + q + r + nb1 + nb2 + gp1 + gp2 + zi
 
     if length(θ) != nPar
         error("Length of θ does not match model specification.")
@@ -237,7 +256,7 @@ function θ2par(θ::Vector{T}, model::INMAModel)::parameter where {T <: Real}
     used += q
     η = θ[used + 1:used + r]
     used += r
-    ϕtemp = θ[used + 1:used + nb1 + nb2]
+    ϕtemp = θ[used + 1:used + nb1 + nb2 + gp1 + gp2]
     if length(ϕtemp) == 2
         ϕ = ϕtemp
     end
@@ -247,7 +266,7 @@ function θ2par(θ::Vector{T}, model::INMAModel)::parameter where {T <: Real}
     if length(ϕtemp) == 0
         ϕ = Vector{Float64}([])
     end
-    used += nb1 + nb2
+    used += nb1 + nb2 + gp1 + gp2
     if zi
         ω = θ[end]
     else
@@ -382,7 +401,8 @@ function expandRestrictions(θ::Vector{T1},
         θ = θ[nReg+1:end]
     end
     
-    nPhi = sum(model.distr .== "NegativeBinomial")
+    nPhi = sum(model.distr .== "NegativeBinomial") + sum(model.distr .== "GPoisson")
+    # Here
     if any(sym .== :ϕ)
         indϕ = findall(sym .== :ϕ)
         nr = length(indϕ)

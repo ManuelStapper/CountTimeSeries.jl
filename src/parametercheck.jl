@@ -26,7 +26,6 @@ further fulfill stationarity properties.
 function parametercheck(θ::parameter, model::INGARCHModel)::Bool
     logl = model.link == "Log"
     lin = !logl
-    nb = model.distr == "NegativeBinomial"
 
     β0 = θ.β0
     α = θ.α
@@ -76,7 +75,6 @@ end
 function parametercheck(θ::parameter, model::INARCHModel)::Bool
     logl = model.link == "Log"
     lin = !logl
-    nb = model.distr == "NegativeBinomial"
 
     β0 = θ.β0
     α = θ.α
@@ -125,7 +123,6 @@ end
 function parametercheck(θ::parameter, model::IIDModel)::Bool
     logl = model.link == "Log"
     lin = !logl
-    nb = model.distr == "NegativeBinomial"
 
     β0 = θ.β0
     η = θ.η
@@ -164,6 +161,9 @@ function parametercheck(θ::parameter, model::INARMAModel)::Bool
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
 
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
+
     p = length(model.pastObs)
     q = length(model.pastMean)
     r = length(model.external)
@@ -209,7 +209,7 @@ function parametercheck(θ::parameter, model::INARMAModel)::Bool
         end
     end
 
-    if nb1 | nb2
+    if nb1 | nb2 | gp1 | gp2
         if any(ϕ .<= 0)
             return false
         end
@@ -232,6 +232,9 @@ function parametercheck(θ::parameter, model::INARModel)::Bool
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
 
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
+
     p = length(model.pastObs)
     r = length(model.external)
 
@@ -269,7 +272,7 @@ function parametercheck(θ::parameter, model::INARModel)::Bool
         end
     end
 
-    if nb1 | nb2
+    if nb1 | nb2 | gp1 | gp2
         if any(ϕ .<= 0)
             return false
         end
@@ -291,6 +294,9 @@ function parametercheck(θ::parameter, model::INMAModel)::Bool
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
 
     q = length(model.pastMean)
     r = length(model.external)
@@ -325,7 +331,7 @@ function parametercheck(θ::parameter, model::INMAModel)::Bool
         end
     end
 
-    if nb1 | nb2
+    if nb1 | nb2 | gp1 | gp2
         if any(ϕ .<= 0)
             return false
         end
@@ -341,3 +347,4 @@ end
 function parametercheck(θ::Array{T1, 1}, model::T2)::Bool where {T1 <: Real, T2 <: CountModel}
     parametercheck(θ2par(θ, model), model)
 end
+

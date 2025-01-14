@@ -50,11 +50,12 @@ function fit(y::Vector{Int64},
     lin = !logl
 
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
 
     zi = model.zi
 
     nObs = T - M
-    nPar = 1 + p + q + r + nb + zi - nR
+    nPar = 1 + p + q + r + nb + gp + zi - nR
 
     optimFun = BFGS()
     if MLEControl.optimizer == "LBFGS"
@@ -173,18 +174,23 @@ function fit(y::Vector{Int64},
 
     nb1 = model.distr[1] == "NegativeBinomial"
     nb2 = model.distr[2] == "NegativeBinomial"
+
+    gp1 = model.distr[1] == "GPoisson"
+    gp2 = model.distr[2] == "GPoisson"
     if r == 0
         nb2 = false
+        gp2 = false
     else
         if sum(model.external) == 0
             nb2 = false
+            gp2 = false
         end
     end
 
     zi = model.zi
 
     nObs = T - M
-    nPar = 1 + p + q + r + nb1 + nb2 + zi - nR
+    nPar = 1 + p + q + r + nb1 + nb2 + gp1 + gp2 + zi - nR
 
     optimFun = BFGS()
     if MLEControl.optimizer == "LBFGS"

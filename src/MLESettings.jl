@@ -29,9 +29,10 @@ function MLESettings(y::Vector{Int64},
     q = length(model.pastMean)
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
     maxEval = Int64(round(maxEval))
 
-    nPar = 1 + p + q + r + nb + model.zi
+    nPar = 1 + p + q + r + nb + gp + model.zi
     init = Vector{Float64}(init)
 
     if (length(init) != nPar) & (length(init) > 0)
@@ -54,7 +55,7 @@ function MLESettings(y::Vector{Int64},
             temp = Vector{Float64}([])
         end
 
-        init = [β0init; temp; fill(0.05, r); fill(5.0, nb); ifelse(model.zi, 0.1, Vector{Float64}([]))]
+        init = [β0init; temp; fill(0.05, r); fill(3.0, nb + gp); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -77,8 +78,9 @@ function MLESettings(y::Vector{Int64},
     p = length(model.pastObs)
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
 
-    nPar = 1 + p + r + nb + model.zi
+    nPar = 1 + p + r + nb + gp + model.zi
     init = Vector{Float64}(init)
     maxEval = Int64(round(maxEval))
 
@@ -101,7 +103,7 @@ function MLESettings(y::Vector{Int64},
             temp = Vector{Float64}([])
         end
 
-        init = [β0init; temp; fill(0.05, r); fill(5.0, nb); ifelse(model.zi, 0.1, Vector{Float64}([]))]
+        init = [β0init; temp; fill(0.05, r); fill(3.0, nb + gp); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -122,8 +124,9 @@ function MLESettings(y::Vector{Int64},
                      maxEval::T2 = 1e10)::MLEControl where {T1, T2 <: Real}
     r = length(model.external)
     nb = model.distr == "NegativeBinomial"
+    gp = model.distr == "GPoisson"
 
-    nPar = 1 + r + nb + model.zi
+    nPar = 1 + r + nb + gp + model.zi
     init = Vector{Float64}(init)
     maxEval = Int64(round(maxEval))
 
@@ -139,7 +142,7 @@ function MLESettings(y::Vector{Int64},
             β0init = log(β0init)
         end
 
-        init = [β0init; fill(0.05, r); fill(5.0, nb); ifelse(model.zi, 0.1, Vector{Float64}([]))]
+        init = [β0init; fill(0.05, r); fill(3.0, nb + gp); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -163,7 +166,7 @@ function MLESettings(y::Vector{Int64},
     q = length(model.pastMean)
     r = length(model.external)
     maxEval = Int64(round(maxEval))
-    nϕ = sum(model.distr .== "NegativeBinomial")
+    nϕ = sum(model.distr .== "NegativeBinomial") + sum(model.distr .== "GPoisson")
     if nϕ == 2
         if r == 0
             nϕ -= 1
@@ -197,7 +200,7 @@ function MLESettings(y::Vector{Int64},
             temp = Vector{Float64}([])
         end
 
-        init = [β0init; temp; fill(0.05, r); fill(5.0, nϕ); ifelse(model.zi, 0.1, Vector{Float64}([]))]
+        init = [β0init; temp; fill(0.05, r); fill(3.0, nϕ); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -220,7 +223,7 @@ function MLESettings(y::Vector{Int64},
     p = length(model.pastObs)
     r = length(model.external)
     maxEval = Int64(round(maxEval))
-    nϕ = sum(model.distr .== "NegativeBinomial")
+    nϕ = sum(model.distr .== "NegativeBinomial") + sum(model.distr .== "GPoisson")
     if nϕ == 2
         if r == 0
             nϕ -= 1
@@ -253,7 +256,7 @@ function MLESettings(y::Vector{Int64},
             temp = Vector{Float64}([])
         end
 
-        init = [β0init; temp; fill(0.05, r); fill(5.0, nϕ); ifelse(model.zi, 0.1, Vector{Float64}([]))]
+        init = [β0init; temp; fill(0.05, r); fill(3.0, nϕ); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)
@@ -276,7 +279,7 @@ function MLESettings(y::Vector{Int64},
     q = length(model.pastMean)
     r = length(model.external)
     maxEval = Int64(round(maxEval))
-    nϕ = sum(model.distr .== "NegativeBinomial")
+    nϕ = sum(model.distr .== "NegativeBinomial") + sum(model.distr .== "GPoisson")
     if nϕ == 2
         if r == 0
             nϕ -= 1
@@ -310,7 +313,7 @@ function MLESettings(y::Vector{Int64},
             temp = Vector{Float64}([])
         end
 
-        init = [β0init; temp; fill(0.05, r); fill(5.0, nϕ); ifelse(model.zi, 0.1, Vector{Float64}([]))]
+        init = [β0init; temp; fill(0.05, r); fill(3.0, nϕ); ifelse(model.zi, 0.1, Vector{Float64}([]))]
     end
 
     init = θ2par(init, model)

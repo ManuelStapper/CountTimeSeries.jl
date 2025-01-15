@@ -5,7 +5,7 @@
 [![DOI](https://zenodo.org/badge/349195207.svg)](https://zenodo.org/badge/latestdoi/349195207)
 
 
-This package is developed to handle univariate count data time series. Up to now, it covers integer counterparts of ARMA and GARCH processes with broad generalizations. It enables the user to generate artificial data, estimate parameters by Maximum Likelihood, conduct inference on the estimates, assess model choice and carry out forecasts. A detailed documentation with theoretical background is provided [here](https://github.com/ManuelStapper/CountTimeSeries.jl/blob/master/CountTimeSeries_documentation.pdf).
+This package is developed to handle univariate count data time series. Up to now, it covers integer counterparts of ARMA and GARCH processes with broad generalizations. It enables the user to generate artificial data, estimate parameters by Maximum Likelihood, conduct inference on the estimates, assess model choice and carry out forecasts.
 
 ## Example
 
@@ -28,6 +28,5 @@ predict(res, 10)
 
 ## Future Extensions
 * Bounded Counts
-* Functions for marginal mean/variance, ACF, ...
 * GMM Estimation
 * Multivariate Processes
